@@ -1,6 +1,6 @@
 {
-  "parent": "item/generated",
+  "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "minecraft:item/gold_nugget"
+    "layer0": "obsidiantears:item/obsidian_tear_drop"
   }
 }

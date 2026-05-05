@@ -2,6 +2,29 @@
   "itemGroup.obsidiantears": "Obsidian Tears",
   "item.obsidiantears.obsidian_tear_drop": "Obsidian Tear Drop",
 
+  "screen.obsidiantears.teleport.title": "Obsidian Tear Teleport",
+  "screen.obsidiantears.teleport.loading": "Reading teleport monuments...",
+  "screen.obsidiantears.teleport.empty.title": "No teleport monuments yet",
+  "screen.obsidiantears.teleport.empty.build": "Place Crying Obsidian, then place a Redstone Block directly on top.",
+  "screen.obsidiantears.teleport.empty.name": "After you name the monument, it will appear in this list.",
+  "screen.obsidiantears.teleport.empty.recipe": "Obsidian Tear recipe: Gold Nugget + Redstone Dust + Glowstone Dust.",
+  "screen.obsidiantears.teleport.entry": "%s #%s [%s %s, %s, %s]",
+  "screen.obsidiantears.teleport.page": "%s / %s",
+
+  "screen.obsidiantears.naming.title": "Name Teleport Monument",
+  "screen.obsidiantears.naming.subtitle": "Monument #%s",
+  "screen.obsidiantears.naming.hint": "Enter monument name",
+
+  "gui.obsidiantears.confirm": "Confirm",
+  "gui.obsidiantears.cancel": "Cancel",
+  "gui.obsidiantears.close": "Close",
+
+  "dimension.obsidiantears.overworld": "Overworld",
+  "dimension.obsidiantears.nether": "Nether",
+  "dimension.obsidiantears.end": "End",
+
+  "message.obsidiantears.waypoint.created": "Teleport monument created. Please name it.",
+
   "obsidiantears.configuration.title": "Obsidian Tears Configs",
   "obsidiantears.configuration.section.obsidiantears.common.toml": "Obsidian Tears Configs",
   "obsidiantears.configuration.section.obsidiantears.common.toml.title": "Obsidian Tears Configs",

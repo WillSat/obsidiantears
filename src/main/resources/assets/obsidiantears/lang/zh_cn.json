@@ -1,6 +1,30 @@
 {
   "itemGroup.obsidiantears": "黑曜石之泪",
   "item.obsidiantears.obsidian_tear_drop": "黑曜石泪滴",
+
+  "screen.obsidiantears.teleport.title": "黑曜石泪滴传送",
+  "screen.obsidiantears.teleport.loading": "正在读取传送碑...",
+  "screen.obsidiantears.teleport.empty.title": "还没有可用的传送碑",
+  "screen.obsidiantears.teleport.empty.build": "放置哭泣黑曜石，并在正上方放置红石块来创建传送碑。",
+  "screen.obsidiantears.teleport.empty.name": "命名完成后，传送碑会出现在这个列表中。",
+  "screen.obsidiantears.teleport.empty.recipe": "黑曜石泪滴配方：金粒 + 红石粉 + 萤石粉。",
+  "screen.obsidiantears.teleport.entry": "%s #%s [%s %s, %s, %s]",
+  "screen.obsidiantears.teleport.page": "%s / %s",
+
+  "screen.obsidiantears.naming.title": "命名传送碑",
+  "screen.obsidiantears.naming.subtitle": "第 %s 座传送碑",
+  "screen.obsidiantears.naming.hint": "输入传送碑名称",
+
+  "gui.obsidiantears.confirm": "确定",
+  "gui.obsidiantears.cancel": "取消",
+  "gui.obsidiantears.close": "关闭",
+
+  "dimension.obsidiantears.overworld": "主世界",
+  "dimension.obsidiantears.nether": "下界",
+  "dimension.obsidiantears.end": "末地",
+
+  "message.obsidiantears.waypoint.created": "传送碑已创建，请为它命名。",
+
   "obsidiantears.configuration.title": "黑曜石之泪配置",
   "obsidiantears.configuration.section.obsidiantears.common.toml": "黑曜石之泪配置",
   "obsidiantears.configuration.section.obsidiantears.common.toml.title": "黑曜石之泪配置",

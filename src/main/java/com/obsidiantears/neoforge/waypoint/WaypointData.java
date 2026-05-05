@@ -78,7 +78,7 @@ public class WaypointData {
             dimension,
             new BlockPos(tag.getIntOr("X", 0), tag.getIntOr("Y", 0), tag.getIntOr("Z", 0)),
             sequence,
-            tag.getStringOr("DisplayName", "Waypoint #" + sequence),
+            tag.getStringOr("DisplayName", "Unnamed Monument"),
             tag.getLongOr("CreatedTime", System.currentTimeMillis())
         );
     }

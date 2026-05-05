@@ -42,7 +42,7 @@ public class BlockEventHandler {
 
         if (player instanceof ServerPlayer serverPlayer) {
             PacketDistributor.sendToPlayer(serverPlayer, new NamingPacket(waypoint.getDimension(), redstonePos, waypoint.getSequence()));
-            serverPlayer.sendSystemMessage(Component.literal("传送碑已创建，请为它命名。"));
+            serverPlayer.sendSystemMessage(Component.translatable("message.obsidiantears.waypoint.created"));
         }
     }
 

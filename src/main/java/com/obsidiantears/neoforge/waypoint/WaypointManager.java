@@ -37,7 +37,7 @@ public class WaypointManager extends SavedData {
         }
 
         int sequence = nextSequence++;
-        WaypointData waypoint = new WaypointData(playerName, level.dimension().identifier(), pos, sequence, "Waypoint #" + sequence);
+        WaypointData waypoint = new WaypointData(playerName, level.dimension().identifier(), pos, sequence, "Unnamed Monument");
         waypoints.put(key, waypoint);
         setDirty();
         return waypoint;

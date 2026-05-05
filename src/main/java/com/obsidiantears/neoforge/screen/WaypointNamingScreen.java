@@ -20,7 +20,7 @@ public class WaypointNamingScreen extends Screen {
     private Button confirmButton;
 
     public WaypointNamingScreen(Identifier dimension, BlockPos pos, int sequence) {
-        super(Component.literal("命名传送碑"));
+        super(Component.translatable("screen.obsidiantears.naming.title"));
         this.dimension = dimension;
         this.waypointPos = pos;
         this.sequence = sequence;
@@ -31,26 +31,27 @@ public class WaypointNamingScreen extends Screen {
         int centerX = this.width / 2;
         int centerY = this.height / 2;
 
-        nameInput = new EditBox(this.font, centerX - TEXTBOX_WIDTH / 2, centerY - 10, TEXTBOX_WIDTH, TEXTBOX_HEIGHT, Component.literal(""));
+        nameInput = new EditBox(this.font, centerX - TEXTBOX_WIDTH / 2, centerY - 10, TEXTBOX_WIDTH, TEXTBOX_HEIGHT, Component.empty());
         nameInput.setMaxLength(50);
-        nameInput.setHint(Component.literal("输入传送碑名称"));
+        nameInput.setHint(Component.translatable("screen.obsidiantears.naming.hint"));
         nameInput.setResponder(value -> updateConfirmButton());
         this.addRenderableWidget(nameInput);
         this.setInitialFocus(nameInput);
 
-        confirmButton = Button.builder(Component.literal("确定"), button -> confirmName())
+        confirmButton = Button.builder(Component.translatable("gui.obsidiantears.confirm"), button -> confirmName())
             .bounds(centerX - 70, centerY + 24, 60, 20)
             .build();
         confirmButton.active = false;
         this.addRenderableWidget(confirmButton);
-        this.addRenderableWidget(Button.builder(Component.literal("取消"), button -> this.onClose())
+        this.addRenderableWidget(Button.builder(Component.translatable("gui.obsidiantears.cancel"), button -> this.onClose())
             .bounds(centerX + 10, centerY + 24, 60, 20)
             .build());
     }
 
     @Override
     public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
-        graphics.centeredText(this.font, "请为传送碑命名", this.width / 2, this.height / 2 - 40, 0xFFFFFF);
+        graphics.centeredText(this.font, this.title, this.width / 2, this.height / 2 - 48, 0xFFFFFF);
+        graphics.centeredText(this.font, Component.translatable("screen.obsidiantears.naming.subtitle", sequence), this.width / 2, this.height / 2 - 34, 0xAAAAAA);
         super.extractRenderState(graphics, mouseX, mouseY, partialTick);
     }
 
