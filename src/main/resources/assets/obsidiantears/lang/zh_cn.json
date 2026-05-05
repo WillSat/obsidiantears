@@ -1,0 +1,11 @@
+{
+  "itemGroup.obsidiantears": "黑曜石之泪",
+  "item.obsidiantears.obsidian_tear_drop": "黑曜石泪滴",
+  "obsidiantears.configuration.title": "黑曜石之泪配置",
+  "obsidiantears.configuration.section.obsidiantears.common.toml": "黑曜石之泪配置",
+  "obsidiantears.configuration.section.obsidiantears.common.toml.title": "黑曜石之泪配置",
+  "obsidiantears.configuration.items": "物品列表",
+  "obsidiantears.configuration.logDirtBlock": "记录泥土方块",
+  "obsidiantears.configuration.magicNumberIntroduction": "魔法数字文本",
+  "obsidiantears.configuration.magicNumber": "魔法数字"
+}

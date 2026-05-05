@@ -1,0 +1,12 @@
+{
+  "itemGroup.obsidiantears": "Obsidian Tears",
+  "item.obsidiantears.obsidian_tear_drop": "Obsidian Tear Drop",
+
+  "obsidiantears.configuration.title": "Obsidian Tears Configs",
+  "obsidiantears.configuration.section.obsidiantears.common.toml": "Obsidian Tears Configs",
+  "obsidiantears.configuration.section.obsidiantears.common.toml.title": "Obsidian Tears Configs",
+  "obsidiantears.configuration.items": "Item List",
+  "obsidiantears.configuration.logDirtBlock": "Log Dirt Block",
+  "obsidiantears.configuration.magicNumberIntroduction": "Magic Number Text",
+  "obsidiantears.configuration.magicNumber": "Magic Number"
+}
