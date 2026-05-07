@@ -1,0 +1,44 @@
+{
+  "itemGroup.obsidiantears": "흑요석의 눈물",
+  "item.obsidiantears.obsidian_tear_drop": "흑요석 눈물방울",
+
+  "screen.obsidiantears.teleport.title": "흑요석 눈물방울 텔레포트",
+  "screen.obsidiantears.teleport.loading": "전송비 읽는 중…",
+  "screen.obsidiantears.teleport.empty.title": "아직 전송비가 없습니다",
+  "screen.obsidiantears.teleport.empty.build": "우는 흑요석을 놓고 바로 위에 레드스톤 블록을 놓으세요.",
+  "screen.obsidiantears.teleport.empty.name": "이름을 지으면 이 목록에 나타납니다.",
+  "screen.obsidiantears.teleport.entry": "%s %s",
+  "screen.obsidiantears.teleport.tab.all": "전체",
+  "screen.obsidiantears.teleport.tab.overworld": "오버월드",
+  "screen.obsidiantears.teleport.tab.nether": "네더",
+  "screen.obsidiantears.teleport.tab.end": "엔드",
+  "screen.obsidiantears.teleport.section.overworld": "오버월드",
+  "screen.obsidiantears.teleport.section.nether": "네더",
+  "screen.obsidiantears.teleport.section.end": "엔드",
+  "screen.obsidiantears.teleport.page": "%s / %s",
+  "screen.obsidiantears.teleport.refresh": "새로고침",
+  "screen.obsidiantears.teleport.previous": "^",
+  "screen.obsidiantears.teleport.next": "v",
+
+  "screen.obsidiantears.naming.title": "전송비 이름 짓기",
+  "screen.obsidiantears.naming.subtitle": "전송비 #%s",
+  "screen.obsidiantears.naming.location": "좌표: %s, %s, %s",
+  "screen.obsidiantears.naming.dimension": "차원: %s",
+  "screen.obsidiantears.naming.hint": "전송비 이름 입력",
+
+  "gui.obsidiantears.confirm": "확인",
+  "gui.obsidiantears.cancel": "취소",
+  "gui.obsidiantears.close": "닫기",
+
+  "dimension.obsidiantears.overworld": "오버월드",
+  "dimension.obsidiantears.nether": "네더",
+  "dimension.obsidiantears.end": "엔드",
+
+  "obsidiantears.configuration.title": "흑요석의 눈물 설정",
+  "obsidiantears.configuration.section.obsidiantears.common.toml": "흑요석의 눈물 설정",
+  "obsidiantears.configuration.section.obsidiantears.common.toml.title": "흑요석의 눈물 설정",
+  "obsidiantears.configuration.items": "아이템 목록",
+  "obsidiantears.configuration.logDirtBlock": "흙 블록 기록",
+  "obsidiantears.configuration.magicNumberIntroduction": "매직 넘버 설명",
+  "obsidiantears.configuration.magicNumber": "매직 넘버"
+}

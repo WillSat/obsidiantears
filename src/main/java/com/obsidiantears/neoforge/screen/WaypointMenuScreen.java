@@ -2,22 +2,36 @@ package com.obsidiantears.neoforge.screen;
 
 import com.obsidiantears.neoforge.network.PacketHelper;
 import com.obsidiantears.neoforge.waypoint.WaypointData;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TextColor;
+import org.lwjgl.glfw.GLFW;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class WaypointMenuScreen extends Screen {
-    private static final int BUTTON_WIDTH = 340;
+    private static final int MIN_BUTTON_WIDTH = 240;
+    private static final int MAX_BUTTON_WIDTH = 360;
     private static final int BUTTON_HEIGHT = 20;
-    private static final int VISIBLE_BUTTONS = 8;
+    private static final int BUTTON_GAP = 6;
+    private static final int MAX_VISIBLE_ROWS = 11;
+    private static final int COORD_BUTTON_WIDTH = 100;
+    private static final int TAB_COUNT = 4;
+    private static final List<String> DIMENSION_ORDER = List.of(
+        "minecraft:overworld", "minecraft:the_nether", "minecraft:the_end"
+    );
 
-    private List<WaypointData> waypoints = new ArrayList<>();
+    private List<WaypointData> allWaypoints = new ArrayList<>();
+    private List<DisplayRow> rows = new ArrayList<>();
     private int scrollOffset = 0;
     private boolean loaded = false;
+    private int currentTab = 0;
 
     public WaypointMenuScreen() {
         super(Component.translatable("screen.obsidiantears.teleport.title"));
@@ -25,80 +39,263 @@ public class WaypointMenuScreen extends Screen {
 
     @Override
     protected void init() {
-        PacketHelper.requestWaypoints();
+        if (!loaded) {
+            PacketHelper.requestWaypoints();
+        }
         rebuildWaypointButtons();
+    }
+
+    private void selectTab(int tab) {
+        if (tab == currentTab) return;
+        currentTab = tab;
+        scrollOffset = 0;
+        rebuildWaypointButtons();
+    }
+
+    private List<DisplayRow> buildTabRows() {
+        if (currentTab == 0) {
+            return buildAllRows(allWaypoints);
+        }
+        String targetDim = DIMENSION_ORDER.get(currentTab - 1);
+        List<WaypointData> filtered = allWaypoints.stream()
+            .filter(wp -> wp.getDimension().toString().equals(targetDim))
+            .sorted(Comparator.comparingInt(WaypointData::getSequence))
+            .toList();
+        return filtered.stream().map(DisplayRow::new).toList();
+    }
+
+    private List<DisplayRow> buildAllRows(List<WaypointData> waypoints) {
+        Map<String, List<WaypointData>> grouped = new LinkedHashMap<>();
+        for (String dim : DIMENSION_ORDER) {
+            grouped.put(dim, new ArrayList<>());
+        }
+        for (WaypointData wp : waypoints) {
+            grouped.computeIfAbsent(wp.getDimension().toString(), k -> new ArrayList<>()).add(wp);
+        }
+        List<DisplayRow> result = new ArrayList<>();
+        for (var entry : grouped.entrySet()) {
+            List<WaypointData> list = entry.getValue();
+            if (list.isEmpty()) continue;
+            list.sort(Comparator.comparingInt(WaypointData::getSequence));
+            result.add(new DisplayRow(sectionName(entry.getKey())));
+            for (WaypointData wp : list) {
+                result.add(new DisplayRow(wp));
+            }
+        }
+        return result;
     }
 
     private void rebuildWaypointButtons() {
         clearWidgets();
 
-        int startX = (this.width - BUTTON_WIDTH) / 2;
-        int startY = this.height / 4 + 28;
-        int end = Math.min(waypoints.size(), scrollOffset + VISIBLE_BUTTONS);
+        rows = buildTabRows();
+        int buttonWidth = listButtonWidth();
+        int visibleRows = visibleRowCount();
+        int startX = (this.width - buttonWidth) / 2;
+        int listY = listStartY();
+        int maxScroll = maxScroll();
+        scrollOffset = clamp(scrollOffset, 0, maxScroll);
+        int end = Math.min(rows.size(), scrollOffset + visibleRows);
 
-        for (int i = scrollOffset; i < end; i++) {
-            WaypointData waypoint = waypoints.get(i);
-            int y = startY + (i - scrollOffset) * (BUTTON_HEIGHT + 6);
-            Component text = Component.translatable(
-                "screen.obsidiantears.teleport.entry",
-                waypoint.getDisplayName(),
-                waypoint.getSequence(),
-                dimensionName(waypoint),
-                waypoint.getPos().getX(),
-                waypoint.getPos().getY(),
-                waypoint.getPos().getZ()
-            );
-            this.addRenderableWidget(Button.builder(text, button -> teleportToWaypoint(waypoint))
-                .bounds(startX, y, BUTTON_WIDTH, BUTTON_HEIGHT)
-                .build());
+        // --- tab bar ---
+        int tabBarY = 28;
+        int tabGap = 2;
+        int tabWidth = (buttonWidth - (TAB_COUNT - 1) * tabGap) / TAB_COUNT;
+        for (int t = 0; t < TAB_COUNT; t++) {
+            int tx = startX + t * (tabWidth + tabGap);
+            int tabIndex = t;
+            Button tabBtn = Button.builder(tabName(t), btn -> selectTab(tabIndex))
+                .bounds(tx, tabBarY, tabWidth, BUTTON_HEIGHT)
+                .build();
+            if (t == currentTab) {
+                tabBtn.active = false;
+            }
+            this.addRenderableWidget(tabBtn);
         }
 
-        this.addRenderableWidget(Button.builder(Component.translatable("gui.obsidiantears.close"), button -> this.onClose())
-            .bounds(startX, this.height - 40, BUTTON_WIDTH, BUTTON_HEIGHT)
-            .build());
+        // --- status text ---
+        if (!loaded) {
+            addCenteredText(Component.translatable("screen.obsidiantears.teleport.loading").withStyle(ChatFormatting.GRAY), this.height / 2 - 8);
+        } else if (rows.isEmpty()) {
+            addEmptyStateText();
+        } else if (rows.size() > visibleRows) {
+            Component page = Component.translatable("screen.obsidiantears.teleport.page",
+                Math.min(scrollOffset + visibleRows, rows.size()), rows.size())
+                .withStyle(ChatFormatting.GRAY);
+            addCenteredText(page, this.height - 62);
+        }
+
+        // --- scrollable list ---
+        if (loaded) {
+            for (int i = scrollOffset; i < end; i++) {
+                DisplayRow row = rows.get(i);
+                int y = listY + (i - scrollOffset) * (BUTTON_HEIGHT + BUTTON_GAP);
+                if (row.isHeader()) {
+                    addSectionHeader(row.headerText(), y, buttonWidth);
+                } else {
+                    int teleWidth = buttonWidth - COORD_BUTTON_WIDTH - 3;
+                    this.addRenderableWidget(Button.builder(teleportText(row.waypoint()), btn -> teleportToWaypoint(row.waypoint()))
+                        .bounds(startX, y, teleWidth, BUTTON_HEIGHT)
+                        .build());
+                    this.addRenderableWidget(Button.builder(coordText(row.waypoint()), btn -> copyCoords(row.waypoint()))
+                        .bounds(startX + teleWidth + 3, y, COORD_BUTTON_WIDTH, BUTTON_HEIGHT)
+                        .build());
+                }
+            }
+        }
+
+        // --- scroll buttons ---
+        if (loaded && rows.size() > visibleRows && startX + buttonWidth + 32 < this.width) {
+            Button prev = Button.builder(Component.translatable("screen.obsidiantears.teleport.previous"), btn -> changeScroll(-visibleRows))
+                .bounds(startX + buttonWidth + 6, listY, 24, BUTTON_HEIGHT)
+                .build();
+            prev.active = scrollOffset > 0;
+            this.addRenderableWidget(prev);
+
+            Button next = Button.builder(Component.translatable("screen.obsidiantears.teleport.next"), btn -> changeScroll(visibleRows))
+                .bounds(startX + buttonWidth + 6, listY + BUTTON_HEIGHT + BUTTON_GAP, 24, BUTTON_HEIGHT)
+                .build();
+            next.active = scrollOffset < maxScroll;
+            this.addRenderableWidget(next);
+        }
+
+        // --- bottom bar ---
+        int bottomY = this.height - 40;
+        if (buttonWidth >= 280) {
+            int halfWidth = (buttonWidth - BUTTON_GAP) / 2;
+            Button refresh = Button.builder(Component.translatable("screen.obsidiantears.teleport.refresh"), btn -> refreshWaypoints())
+                .bounds(startX, bottomY, halfWidth, BUTTON_HEIGHT)
+                .build();
+            refresh.active = loaded;
+            this.addRenderableWidget(refresh);
+            this.addRenderableWidget(Button.builder(Component.translatable("gui.obsidiantears.close"), btn -> this.onClose())
+                .bounds(startX + halfWidth + BUTTON_GAP, bottomY, halfWidth, BUTTON_HEIGHT)
+                .build());
+        } else {
+            this.addRenderableWidget(Button.builder(Component.translatable("gui.obsidiantears.close"), btn -> this.onClose())
+                .bounds(startX, bottomY, buttonWidth, BUTTON_HEIGHT)
+                .build());
+        }
     }
 
     @Override
     public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
-        graphics.centeredText(this.font, this.title, this.width / 2, 20, 0xFFFFFF);
-        if (!loaded) {
-            drawCenteredLines(graphics, this.height / 2 - 8, 0xAAAAAA, Component.translatable("screen.obsidiantears.teleport.loading"));
-        } else if (waypoints.isEmpty()) {
-            drawEmptyState(graphics);
-        } else if (waypoints.size() > VISIBLE_BUTTONS) {
-            Component page = Component.translatable("screen.obsidiantears.teleport.page", Math.min(scrollOffset + VISIBLE_BUTTONS, waypoints.size()), waypoints.size());
-            graphics.centeredText(this.font, page, this.width / 2, this.height - 62, 0xAAAAAA);
-        }
         super.extractRenderState(graphics, mouseX, mouseY, partialTick);
+        drawScaledCenteredText(graphics, this.title.copy().withStyle(ChatFormatting.BOLD), 14, 1.35F, 0xFFE6B3);
     }
 
-    private void drawEmptyState(GuiGraphicsExtractor graphics) {
-        drawCenteredLines(
-            graphics,
-            this.height / 2 - 38,
-            0xAAAAAA,
-            Component.translatable("screen.obsidiantears.teleport.empty.title"),
-            Component.translatable("screen.obsidiantears.teleport.empty.build"),
-            Component.translatable("screen.obsidiantears.teleport.empty.name"),
-            Component.translatable("screen.obsidiantears.teleport.empty.recipe")
+    @Override
+    public boolean keyPressed(net.minecraft.client.input.KeyEvent event) {
+        if (event.key() == GLFW.GLFW_KEY_R) {
+            refreshWaypoints();
+            return true;
+        }
+        if (!loaded || rows.isEmpty()) {
+            return super.keyPressed(event);
+        }
+
+        int visibleRows = visibleRowCount();
+        switch (event.key()) {
+            case GLFW.GLFW_KEY_UP -> { changeScroll(-1); return true; }
+            case GLFW.GLFW_KEY_DOWN -> { changeScroll(1); return true; }
+            case GLFW.GLFW_KEY_PAGE_UP -> { changeScroll(-visibleRows); return true; }
+            case GLFW.GLFW_KEY_PAGE_DOWN -> { changeScroll(visibleRows); return true; }
+            case GLFW.GLFW_KEY_HOME -> { setScrollOffset(0); return true; }
+            case GLFW.GLFW_KEY_END -> { setScrollOffset(maxScroll()); return true; }
+            case GLFW.GLFW_KEY_TAB -> { cycleTab(); return true; }
+            default -> {}
+        }
+        return super.keyPressed(event);
+    }
+
+    private void cycleTab() {
+        selectTab((currentTab + 1) % TAB_COUNT);
+    }
+
+    private void addEmptyStateText() {
+        addCenteredTextLines(
+            this.height / 2 - 24,
+            Component.translatable("screen.obsidiantears.teleport.empty.title").withStyle(ChatFormatting.GRAY),
+            Component.translatable("screen.obsidiantears.teleport.empty.build").withStyle(ChatFormatting.DARK_GRAY),
+            Component.translatable("screen.obsidiantears.teleport.empty.name").withStyle(ChatFormatting.DARK_GRAY)
         );
     }
 
-    private void drawCenteredLines(GuiGraphicsExtractor graphics, int startY, int color, Component... lines) {
+    private void addCenteredTextLines(int startY, Component... lines) {
         for (int i = 0; i < lines.length; i++) {
-            graphics.centeredText(this.font, lines[i], this.width / 2, startY + i * 14, color);
+            addCenteredText(lines[i], startY + i * 14);
         }
+    }
+
+    private void addCenteredText(Component text, int y) {
+        int maxWidth = Math.min(listButtonWidth() + 60, this.width - 32);
+        int textWidth = this.font.width(text);
+        if (textWidth > maxWidth) {
+            text = Component.literal(trimToWidth(text.getString(), maxWidth)).withStyle(text.getStyle());
+            textWidth = this.font.width(text);
+        }
+        this.addRenderableOnly(new StringWidget((this.width - textWidth) / 2, y, textWidth, 9, text, this.font));
+    }
+
+    private void addSectionHeader(Component text, int y, int buttonWidth) {
+        MutableComponent styled = text.copy().withStyle(ChatFormatting.BOLD).withStyle(ChatFormatting.GOLD);
+        int maxWidth = Math.min(buttonWidth, this.width - 32);
+        int textWidth = this.font.width(styled);
+        if (textWidth > maxWidth) {
+            styled = Component.literal(trimToWidth(styled.getString(), maxWidth)).withStyle(styled.getStyle());
+            textWidth = this.font.width(styled);
+        }
+        this.addRenderableOnly(new StringWidget((this.width - textWidth) / 2, y, textWidth, 9, styled, this.font));
+    }
+
+    private void drawScaledCenteredText(GuiGraphicsExtractor graphics, Component text, int y, float scale, int color) {
+        graphics.pose().pushMatrix();
+        graphics.pose().scaleAround(scale, this.width / 2.0F, y);
+        graphics.centeredText(this.font, text, this.width / 2, y, color);
+        graphics.pose().popMatrix();
     }
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
-        int maxScroll = Math.max(0, waypoints.size() - VISIBLE_BUTTONS);
+        if (!loaded || rows.size() <= visibleRowCount()) {
+            return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+        }
+        changeScroll(scrollY > 0 ? -1 : 1);
+        return true;
+    }
+
+    private void changeScroll(int amount) {
+        setScrollOffset(scrollOffset + amount);
+    }
+
+    private void setScrollOffset(int value) {
         int oldOffset = scrollOffset;
-        scrollOffset = scrollY > 0 ? Math.max(0, scrollOffset - 1) : Math.min(maxScroll, scrollOffset + 1);
+        scrollOffset = clamp(value, 0, maxScroll());
         if (oldOffset != scrollOffset) {
             rebuildWaypointButtons();
         }
-        return true;
+    }
+
+    private int maxScroll() {
+        return Math.max(0, rows.size() - visibleRowCount());
+    }
+
+    private int visibleRowCount() {
+        int availableHeight = Math.max(BUTTON_HEIGHT, this.height - listStartY() - 80);
+        int count = availableHeight / (BUTTON_HEIGHT + BUTTON_GAP);
+        return clamp(count, 3, MAX_VISIBLE_ROWS);
+    }
+
+    private int listButtonWidth() {
+        return clamp(this.width - 64, MIN_BUTTON_WIDTH, MAX_BUTTON_WIDTH);
+    }
+
+    private int listStartY() {
+        return 54;
+    }
+
+    private static int clamp(int value, int min, int max) {
+        return Math.max(min, Math.min(max, value));
     }
 
     private void teleportToWaypoint(WaypointData waypoint) {
@@ -108,18 +305,90 @@ public class WaypointMenuScreen extends Screen {
 
     public void setWaypoints(List<WaypointData> waypoints) {
         this.loaded = true;
-        this.waypoints = new ArrayList<>(waypoints);
-        this.scrollOffset = Math.min(this.scrollOffset, Math.max(0, this.waypoints.size() - VISIBLE_BUTTONS));
+        this.allWaypoints = new ArrayList<>(waypoints);
+        this.scrollOffset = Math.min(this.scrollOffset, maxScroll());
         rebuildWaypointButtons();
     }
 
-    private static Component dimensionName(WaypointData waypoint) {
-        return switch (waypoint.getDimension().toString()) {
-            case "minecraft:overworld" -> Component.translatable("dimension.obsidiantears.overworld");
-            case "minecraft:the_nether" -> Component.translatable("dimension.obsidiantears.nether");
-            case "minecraft:the_end" -> Component.translatable("dimension.obsidiantears.end");
-            default -> Component.literal(waypoint.getDimension().toString());
+    private void refreshWaypoints() {
+        loaded = false;
+        scrollOffset = 0;
+        PacketHelper.requestWaypoints();
+        rebuildWaypointButtons();
+    }
+
+    private Component teleportText(WaypointData waypoint) {
+        MutableComponent seqText = Component.literal("#" + waypoint.getSequence())
+            .withStyle(Style.EMPTY.withColor(TextColor.fromRgb(WaypointData.sequenceColor(waypoint.getSequence()))));
+        return Component.translatable(
+            "screen.obsidiantears.teleport.entry",
+            Component.literal(trimToWidth(waypoint.getDisplayName(), 80)),
+            seqText
+        );
+    }
+
+    private Component coordText(WaypointData waypoint) {
+        String text = waypoint.getPos().getX() + ", " + waypoint.getPos().getY() + ", " + waypoint.getPos().getZ();
+        return Component.literal(trimToWidth(text, 90)).withStyle(ChatFormatting.GRAY);
+    }
+
+    private void copyCoords(WaypointData waypoint) {
+        String coords = waypoint.getPos().getX() + ", " + waypoint.getPos().getY() + ", " + waypoint.getPos().getZ();
+        if (this.minecraft != null) {
+            this.minecraft.keyboardHandler.setClipboard(coords);
+        }
+    }
+
+    private String trimToWidth(String text, int maxWidth) {
+        if (this.font.width(text) <= maxWidth) {
+            return text;
+        }
+        String suffix = "...";
+        int end = text.length();
+        while (end > 0 && this.font.width(text.substring(0, end) + suffix) > maxWidth) {
+            end--;
+        }
+        return end <= 0 ? suffix : text.substring(0, end) + suffix;
+    }
+
+    private static MutableComponent sectionName(String dimensionId) {
+        MutableComponent name = switch (dimensionId) {
+            case "minecraft:overworld" -> Component.translatable("screen.obsidiantears.teleport.section.overworld");
+            case "minecraft:the_nether" -> Component.translatable("screen.obsidiantears.teleport.section.nether");
+            case "minecraft:the_end" -> Component.translatable("screen.obsidiantears.teleport.section.end");
+            default -> Component.literal(dimensionId);
         };
+        return Component.literal("— ").append(name).append(" —");
+    }
+
+    private static MutableComponent tabName(int tab) {
+        return switch (tab) {
+            case 0 -> Component.translatable("screen.obsidiantears.teleport.tab.all");
+            case 1 -> Component.translatable("screen.obsidiantears.teleport.tab.overworld");
+            case 2 -> Component.translatable("screen.obsidiantears.teleport.tab.nether");
+            case 3 -> Component.translatable("screen.obsidiantears.teleport.tab.end");
+            default -> Component.literal("?");
+        };
+    }
+
+    private static class DisplayRow {
+        private final Component headerText;
+        private final WaypointData waypoint;
+
+        DisplayRow(Component headerText) {
+            this.headerText = headerText;
+            this.waypoint = null;
+        }
+
+        DisplayRow(WaypointData waypoint) {
+            this.headerText = null;
+            this.waypoint = waypoint;
+        }
+
+        boolean isHeader() { return headerText != null; }
+        boolean isWaypoint() { return waypoint != null; }
+        Component headerText() { return headerText; }
+        WaypointData waypoint() { return waypoint; }
     }
 
     @Override

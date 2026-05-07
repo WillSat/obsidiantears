@@ -4,8 +4,16 @@ import com.obsidiantears.neoforge.ObsidianTears;
 import com.obsidiantears.neoforge.network.NamingPacket;
 import com.obsidiantears.neoforge.waypoint.WaypointData;
 import com.obsidiantears.neoforge.waypoint.WaypointManager;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -16,6 +24,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.function.Consumer;
@@ -42,7 +51,6 @@ public class BlockEventHandler {
 
         if (player instanceof ServerPlayer serverPlayer) {
             PacketDistributor.sendToPlayer(serverPlayer, new NamingPacket(waypoint.getDimension(), redstonePos, waypoint.getSequence()));
-            serverPlayer.sendSystemMessage(Component.translatable("message.obsidiantears.waypoint.created"));
         }
     }
 
@@ -70,14 +78,24 @@ public class BlockEventHandler {
         removeWaypointLabel(level, pos);
 
         ArmorStand label = new ArmorStand(level, pos.getX() + 0.5, pos.getY() + 1.25, pos.getZ() + 0.5);
-        label.setCustomName(Component.literal(waypoint.getDisplayName() + " #" + waypoint.getSequence()));
+        MutableComponent labelText = Component.literal(waypoint.getDisplayName())
+            .withStyle(ChatFormatting.LIGHT_PURPLE);
+        labelText.append(Component.literal(" #" + waypoint.getSequence())
+            .withStyle(Style.EMPTY.withColor(TextColor.fromRgb(WaypointData.sequenceColor(waypoint.getSequence())))));
+        label.setCustomName(labelText);
         label.setCustomNameVisible(true);
         label.setInvulnerable(true);
         label.setNoGravity(true);
         label.setNoBasePlate(true);
         label.setInvisible(true);
+        label.setSilent(true);
         label.addTag(LABEL_TAG);
         level.addFreshEntity(label);
+
+        if (level instanceof ServerLevel serverLevel) {
+            serverLevel.sendParticles(ParticleTypes.PORTAL, pos.getX() + 0.5, pos.getY() + 1.5, pos.getZ() + 0.5,
+                15, 0.3, 0.3, 0.3, 0.03);
+        }
     }
 
     private static void removeWaypointLabel(Level level, BlockPos pos) {
@@ -85,6 +103,23 @@ public class BlockEventHandler {
             if (stand.entityTags().contains(LABEL_TAG)) {
                 stand.remove(Entity.RemovalReason.DISCARDED);
             }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onServerTick(ServerTickEvent.Post event) {
+        MinecraftServer server = event.getServer();
+        if (server.getTickCount() % 30 != 0) return;
+
+        WaypointManager manager = WaypointManager.get(server.overworld());
+        for (WaypointData waypoint : manager.getAllWaypoints()) {
+            ServerLevel targetLevel = server.getLevel(ResourceKey.create(Registries.DIMENSION, waypoint.getDimension()));
+            if (targetLevel == null || !targetLevel.isLoaded(waypoint.getPos())) continue;
+
+            BlockPos pos = waypoint.getPos();
+            targetLevel.sendParticles(ParticleTypes.PORTAL,
+                pos.getX() + 0.5, pos.getY() + 1.2, pos.getZ() + 0.5,
+                2, 0.15, 0.15, 0.15, 0.02);
         }
     }
 

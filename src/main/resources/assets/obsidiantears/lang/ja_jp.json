@@ -1,0 +1,44 @@
+{
+  "itemGroup.obsidiantears": "黒曜石の涙",
+  "item.obsidiantears.obsidian_tear_drop": "黒曜石の涙滴",
+
+  "screen.obsidiantears.teleport.title": "黒曜石の涙滴テレポート",
+  "screen.obsidiantears.teleport.loading": "転送碑を読み込み中…",
+  "screen.obsidiantears.teleport.empty.title": "まだ転送碑がありません",
+  "screen.obsidiantears.teleport.empty.build": "泣く黒曜石を置き、その真上にレッドストーンブロックを置いてください。",
+  "screen.obsidiantears.teleport.empty.name": "名前を付けると、このリストに表示されます。",
+  "screen.obsidiantears.teleport.entry": "%s %s",
+  "screen.obsidiantears.teleport.tab.all": "すべて",
+  "screen.obsidiantears.teleport.tab.overworld": "オーバーワールド",
+  "screen.obsidiantears.teleport.tab.nether": "ネザー",
+  "screen.obsidiantears.teleport.tab.end": "ジ・エンド",
+  "screen.obsidiantears.teleport.section.overworld": "オーバーワールド",
+  "screen.obsidiantears.teleport.section.nether": "ネザー",
+  "screen.obsidiantears.teleport.section.end": "ジ・エンド",
+  "screen.obsidiantears.teleport.page": "%s / %s",
+  "screen.obsidiantears.teleport.refresh": "更新",
+  "screen.obsidiantears.teleport.previous": "^",
+  "screen.obsidiantears.teleport.next": "v",
+
+  "screen.obsidiantears.naming.title": "転送碑に名前を付ける",
+  "screen.obsidiantears.naming.subtitle": "転送碑 #%s",
+  "screen.obsidiantears.naming.location": "座標：%s, %s, %s",
+  "screen.obsidiantears.naming.dimension": "ディメンション：%s",
+  "screen.obsidiantears.naming.hint": "転送碑の名前を入力",
+
+  "gui.obsidiantears.confirm": "確認",
+  "gui.obsidiantears.cancel": "キャンセル",
+  "gui.obsidiantears.close": "閉じる",
+
+  "dimension.obsidiantears.overworld": "オーバーワールド",
+  "dimension.obsidiantears.nether": "ネザー",
+  "dimension.obsidiantears.end": "ジ・エンド",
+
+  "obsidiantears.configuration.title": "黒曜石の涙の設定",
+  "obsidiantears.configuration.section.obsidiantears.common.toml": "黒曜石の涙の設定",
+  "obsidiantears.configuration.section.obsidiantears.common.toml.title": "黒曜石の涙の設定",
+  "obsidiantears.configuration.items": "アイテム一覧",
+  "obsidiantears.configuration.logDirtBlock": "土ブロックのログ",
+  "obsidiantears.configuration.magicNumberIntroduction": "マジックナンバーの説明",
+  "obsidiantears.configuration.magicNumber": "マジックナンバー"
+}

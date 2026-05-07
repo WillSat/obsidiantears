@@ -6,6 +6,8 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
 
 public class WaypointData {
+    private static final int[] SEQUENCE_COLORS = {0xFF1744, 0xD500F9, 0x651FFF, 0x00E5FF, 0x76FF03, 0xFFEA00};
+
     private final String playerName;
     private final Identifier dimension;
     private final BlockPos pos;
@@ -52,6 +54,10 @@ public class WaypointData {
 
     public long getCreatedTime() {
         return createdTime;
+    }
+
+    public static int sequenceColor(int sequence) {
+        return SEQUENCE_COLORS[(sequence - 1) % SEQUENCE_COLORS.length];
     }
 
     public CompoundTag save() {

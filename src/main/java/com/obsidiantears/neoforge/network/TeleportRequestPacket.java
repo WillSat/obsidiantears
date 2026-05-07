@@ -4,6 +4,7 @@ import com.obsidiantears.neoforge.ObsidianTears;
 import com.obsidiantears.neoforge.waypoint.WaypointData;
 import com.obsidiantears.neoforge.waypoint.WaypointManager;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -49,6 +50,7 @@ public record TeleportRequestPacket(Identifier targetDimension, BlockPos targetP
             return;
         }
 
+        ServerLevel sourceLevel = (ServerLevel) player.level();
         ServerLevel targetLevel = player.level().getServer().getLevel(ResourceKey.create(Registries.DIMENSION, waypoint.getDimension()));
         if (targetLevel == null) {
             return;
@@ -58,6 +60,10 @@ public record TeleportRequestPacket(Identifier targetDimension, BlockPos targetP
         double targetX = pos.getX() + 0.5;
         double targetY = pos.getY() + 1.0;
         double targetZ = pos.getZ() + 0.5;
+
+        double sourceX = player.getX();
+        double sourceY = player.getY();
+        double sourceZ = player.getZ();
 
         Entity rootVehicle = player.getRootVehicle();
         List<LeashedEntity> leashedEntities = collectLeashedEntities(player, rootVehicle);
@@ -69,6 +75,9 @@ public record TeleportRequestPacket(Identifier targetDimension, BlockPos targetP
         }
 
         restoreLeashedEntities(player, targetLevel, targetX, targetY, targetZ, leashedEntities);
+
+        spawnTeleportParticles(sourceLevel, sourceX, sourceY, sourceZ);
+        spawnTeleportParticles(targetLevel, targetX, targetY, targetZ);
     }
 
     private static List<LeashedEntity> collectLeashedEntities(ServerPlayer player, Entity rootVehicle) {
@@ -108,6 +117,10 @@ public record TeleportRequestPacket(Identifier targetDimension, BlockPos targetP
     private static Entity findEntity(ServerLevel sourceLevel, ServerLevel targetLevel, UUID uuid) {
         Entity entity = targetLevel.getEntity(uuid);
         return entity != null ? entity : sourceLevel.getEntity(uuid);
+    }
+
+    private static void spawnTeleportParticles(ServerLevel level, double x, double y, double z) {
+        level.sendParticles(ParticleTypes.PORTAL, x, y, z, 40, 0.4, 1.2, 0.4, 0.05);
     }
 
     private record LeashedEntity(UUID uuid, Vec3 offset, float yRot, float xRot) {
