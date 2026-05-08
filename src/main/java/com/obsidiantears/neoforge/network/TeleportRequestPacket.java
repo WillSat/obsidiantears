@@ -4,6 +4,7 @@ import com.obsidiantears.neoforge.ObsidianTears;
 import com.obsidiantears.neoforge.waypoint.WaypointData;
 import com.obsidiantears.neoforge.waypoint.WaypointManager;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.FriendlyByteBuf;
@@ -14,6 +15,8 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.biome.Biome;
+import net.neoforged.neoforge.network.PacketDistributor;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Leashable;
 import net.minecraft.world.entity.Relative;
@@ -78,6 +81,33 @@ public record TeleportRequestPacket(Identifier targetDimension, BlockPos targetP
 
         spawnTeleportParticles(sourceLevel, sourceX, sourceY, sourceZ);
         spawnTeleportParticles(targetLevel, targetX, targetY, targetZ);
+
+        // Gather biome, time, weather for the feedback overlay
+        String rawBiome = targetLevel.getBiome(pos).getRegisteredName();
+        int colon = rawBiome.indexOf(':');
+        String biomeKey = colon >= 0 ? rawBiome.substring(colon + 1) : rawBiome;
+        boolean isOverworld = targetLevel.dimension().equals(net.minecraft.world.level.Level.OVERWORLD);
+        long dayTime = targetLevel.getGameTime() % 24000;
+        int totalMinutes = (int) ((dayTime + 6000) % 24000 * 60 / 1000);
+        int hours = (totalMinutes / 60) % 24;
+        int minutes = totalMinutes % 60;
+        String ampm = hours >= 12 ? "PM" : "AM";
+        int displayHour = hours % 12;
+        if (displayHour == 0) displayHour = 12;
+        String timeText = String.format("%02d:%02d %s", displayHour, minutes, ampm);
+        String weather;
+        if (targetLevel.isThundering()) {
+            weather = "thunder";
+        } else if (targetLevel.isRaining()) {
+            weather = "rain";
+        } else {
+            weather = "clear";
+        }
+
+        PacketDistributor.sendToPlayer(player, new TeleportFeedbackPacket(
+            biomeKey, waypoint.getDisplayName(), waypoint.getQualifiedSequence(),
+            WaypointData.sequenceColor(waypoint.getDimension(), waypoint.getSequence()),
+            timeText, weather, isOverworld));
     }
 
     private static List<LeashedEntity> collectLeashedEntities(ServerPlayer player, Entity rootVehicle) {

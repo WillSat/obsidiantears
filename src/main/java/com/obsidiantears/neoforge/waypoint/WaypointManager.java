@@ -11,10 +11,8 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class WaypointManager extends SavedData {
     private static final Identifier ID = Identifier.fromNamespaceAndPath("obsidiantears", "waypoints");
@@ -22,11 +20,16 @@ public class WaypointManager extends SavedData {
     private static final SavedDataType<WaypointManager> TYPE = new SavedDataType<>(ID, WaypointManager::new, CODEC);
 
     private final Map<String, WaypointData> waypoints = new LinkedHashMap<>();
-    private int nextSequence = 1;
 
     public static WaypointManager get(LevelAccessor level) {
         ServerLevel serverLevel = (ServerLevel) level;
         return serverLevel.getServer().overworld().getDataStorage().computeIfAbsent(TYPE);
+    }
+
+    public Set<Identifier> getActiveDimensions() {
+        return waypoints.values().stream()
+            .map(WaypointData::getDimension)
+            .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     public WaypointData createWaypoint(String playerName, ServerLevel level, BlockPos pos) {
@@ -36,8 +39,9 @@ public class WaypointManager extends SavedData {
             return existing;
         }
 
-        int sequence = nextSequence++;
-        WaypointData waypoint = new WaypointData(playerName, level.dimension().identifier(), pos, sequence, "Unnamed Monument");
+        Identifier dim = level.dimension().identifier();
+        int sequence = nextSequenceForDimension(dim);
+        WaypointData waypoint = new WaypointData(playerName, dim, pos, sequence, "Unnamed Monument");
         waypoints.put(key, waypoint);
         setDirty();
         return waypoint;
@@ -49,8 +53,58 @@ public class WaypointManager extends SavedData {
 
     public void removeWaypoint(Identifier dimension, BlockPos pos) {
         if (waypoints.remove(key(dimension, pos)) != null) {
+            renumberDimension(dimension);
             setDirty();
         }
+    }
+
+    private int nextSequenceForDimension(Identifier dimension) {
+        return (int) waypoints.values().stream()
+            .filter(wp -> wp.getDimension().equals(dimension))
+            .count() + 1;
+    }
+
+    private void renumberDimension(Identifier dimension) {
+        List<WaypointData> dimWaypoints = waypoints.values().stream()
+            .filter(wp -> wp.getDimension().equals(dimension))
+            .sorted(Comparator.comparingInt(WaypointData::getSequence))
+            .toList();
+        int seq = 1;
+        for (WaypointData wp : dimWaypoints) {
+            wp.setSequence(seq++);
+        }
+    }
+
+    public void moveUp(Identifier dimension, BlockPos pos) {
+        WaypointData target = getWaypoint(dimension, pos);
+        if (target == null || target.getSequence() <= 1) return;
+
+        int targetSeq = target.getSequence();
+        WaypointData above = waypoints.values().stream()
+            .filter(wp -> wp.getDimension().equals(dimension) && wp.getSequence() == targetSeq - 1)
+            .findFirst()
+            .orElse(null);
+        if (above == null) return;
+
+        target.setSequence(targetSeq - 1);
+        above.setSequence(targetSeq);
+        setDirty();
+    }
+
+    public void moveDown(Identifier dimension, BlockPos pos) {
+        WaypointData target = getWaypoint(dimension, pos);
+        if (target == null) return;
+
+        int targetSeq = target.getSequence();
+        WaypointData below = waypoints.values().stream()
+            .filter(wp -> wp.getDimension().equals(dimension) && wp.getSequence() == targetSeq + 1)
+            .findFirst()
+            .orElse(null);
+        if (below == null) return;
+
+        target.setSequence(targetSeq + 1);
+        below.setSequence(targetSeq);
+        setDirty();
     }
 
     public void updateWaypointName(Identifier dimension, BlockPos pos, String name) {
@@ -84,7 +138,6 @@ public class WaypointManager extends SavedData {
             list.add(waypoint.save());
         }
         tag.put("Waypoints", list);
-        tag.putInt("NextSequence", nextSequence);
         return tag;
     }
 
@@ -94,7 +147,10 @@ public class WaypointManager extends SavedData {
         for (Tag entry : list) {
             entry.asCompound().map(WaypointData::load).ifPresent(waypoint -> manager.waypoints.put(key(waypoint.getDimension(), waypoint.getPos()), waypoint));
         }
-        manager.nextSequence = Math.max(tag.getIntOr("NextSequence", manager.waypoints.size() + 1), manager.waypoints.size() + 1);
+        // Renumber all dimensions to ensure per-dimension sequence consistency (migrates old global sequences)
+        for (Identifier dim : manager.getActiveDimensions()) {
+            manager.renumberDimension(dim);
+        }
         return manager;
     }
 

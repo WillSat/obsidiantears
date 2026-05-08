@@ -3,7 +3,15 @@
     "allow": [
       "Bash(.\\\\gradlew.bat build *)",
       "Bash(cmd *)",
-      "Bash(./gradlew build *)"
+      "Bash(./gradlew build *)",
+      "Bash(./gradlew compileJava)",
+      "Bash(grep -r \"neo_version\\\\|minecraft_version\\\\|mc_version\" build.gradle)",
+      "Bash(grep -r \"neoforge\" gradle.properties)",
+      "Bash(cat gradle.properties)",
+      "Bash(jar tf *)",
+      "Bash(./gradlew dependencies *)",
+      "Bash(grep -r \"RenderGuiEvent\\\\|RenderGuiLayerEvent\\\\|CustomizeGuiOverlayEvent\" . --include=\"*.java\")",
+      "Bash(grep -r \"import net.neoforged.*client.*event\" . --include=\"*.java\")"
     ]
   }
 }

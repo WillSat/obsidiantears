@@ -1,17 +1,25 @@
 package com.obsidiantears.neoforge.waypoint;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
 
 public class WaypointData {
+    private static final int OVERWORLD_COLOR = 0x76FF03;
+    private static final int NETHER_COLOR = 0xFF1744;
+    private static final int END_COLOR = 0xD500F9;
     private static final int[] SEQUENCE_COLORS = {0xFF1744, 0xD500F9, 0x651FFF, 0x00E5FF, 0x76FF03, 0xFFEA00};
 
     private final String playerName;
     private final Identifier dimension;
     private final BlockPos pos;
-    private final int sequence;
+    private int sequence;
     private String displayName;
     private final long createdTime;
 
@@ -52,12 +60,56 @@ public class WaypointData {
         this.displayName = displayName;
     }
 
+    public void setSequence(int sequence) {
+        this.sequence = sequence;
+    }
+
+    public String getDimensionPrefix() {
+        return dimensionPrefix(dimension);
+    }
+
+    public String getQualifiedSequence() {
+        return dimensionPrefix(dimension) + "-" + sequence;
+    }
+
+    public static String dimensionPrefix(Identifier dimension) {
+        return switch (dimension.toString()) {
+            case "minecraft:overworld" -> "OVW";
+            case "minecraft:the_nether" -> "NTH";
+            case "minecraft:the_end" -> "END";
+            default -> {
+                String path = dimension.getPath();
+                if (path.startsWith("the_")) {
+                    path = path.substring(4);
+                }
+                yield path;
+            }
+        };
+    }
+
+    public static String qualifiedSequence(Identifier dimension, int sequence) {
+        return dimensionPrefix(dimension) + "-" + sequence;
+    }
+
     public long getCreatedTime() {
         return createdTime;
     }
 
-    public static int sequenceColor(int sequence) {
-        return SEQUENCE_COLORS[(sequence - 1) % SEQUENCE_COLORS.length];
+    public static MutableComponent buildLabelComponent(WaypointData waypoint) {
+        MutableComponent text = Component.literal(waypoint.getDisplayName())
+            .withStyle(ChatFormatting.WHITE);
+        text.append(Component.literal(" " + waypoint.getQualifiedSequence())
+            .withStyle(Style.EMPTY.withColor(TextColor.fromRgb(sequenceColor(waypoint.getDimension(), waypoint.getSequence())))));
+        return text;
+    }
+
+    public static int sequenceColor(Identifier dimension, int sequence) {
+        return switch (dimension.toString()) {
+            case "minecraft:overworld" -> OVERWORLD_COLOR;
+            case "minecraft:the_nether" -> NETHER_COLOR;
+            case "minecraft:the_end" -> END_COLOR;
+            default -> SEQUENCE_COLORS[(sequence - 1) % SEQUENCE_COLORS.length];
+        };
     }
 
     public CompoundTag save() {

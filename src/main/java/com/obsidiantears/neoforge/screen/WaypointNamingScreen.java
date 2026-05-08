@@ -40,8 +40,8 @@ public class WaypointNamingScreen extends Screen {
         int buttonY = centerY + 42;
 
         addCenteredText(dimensionLabel().withStyle(ChatFormatting.AQUA), centerY - 42);
-        MutableComponent seqText = Component.literal(String.valueOf(sequence))
-            .withStyle(Style.EMPTY.withColor(TextColor.fromRgb(WaypointData.sequenceColor(sequence))));
+        MutableComponent seqText = Component.literal(WaypointData.qualifiedSequence(dimension, sequence))
+            .withStyle(Style.EMPTY.withColor(TextColor.fromRgb(WaypointData.sequenceColor(dimension, sequence))));
         addCenteredText(Component.translatable("screen.obsidiantears.naming.subtitle", seqText).withStyle(ChatFormatting.GRAY), centerY - 28);
         addCenteredText(Component.translatable("screen.obsidiantears.naming.location", waypointPos.getX(), waypointPos.getY(), waypointPos.getZ()).withStyle(ChatFormatting.DARK_GRAY), centerY - 14);
 

@@ -1,11 +1,16 @@
 package com.obsidiantears.neoforge.network;
 
 import com.obsidiantears.neoforge.ObsidianTears;
+import com.obsidiantears.neoforge.waypoint.WaypointData;
 import com.obsidiantears.neoforge.waypoint.WaypointManager;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TextColor;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
@@ -55,7 +60,7 @@ public record WaypointNamingPacket(Identifier dimension, BlockPos pos, String na
 
         labelLevel.getEntitiesOfClass(ArmorStand.class, labelArea(packet.pos)).forEach(stand -> {
             if (stand.entityTags().contains(ObsidianTears.MODID + "_waypoint_label")) {
-                stand.setCustomName(Component.literal(waypoint.getDisplayName() + " #" + waypoint.getSequence()));
+                stand.setCustomName(WaypointData.buildLabelComponent(waypoint));
             }
         });
     }

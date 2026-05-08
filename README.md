@@ -8,14 +8,17 @@ Place a Redstone Block on top of Crying Obsidian to create a monument. Name it, 
 
 - Build teleport monuments from vanilla blocks (Crying Obsidian + Redstone Block)
 - Name each monument on creation
-- In-world floating label with colored sequence number
-- Permanent purple portal particles ambient around each monument
-- Purple teleport particle burst on arrival
-- Tab-based dimension switching in the teleport menu (All / Overworld / Nether / End)
-- Dimension grouping with styled section headers
-- Colored sequence numbers (6-color cycle: red, purple, indigo, cyan, lime, yellow)
+- In-world floating label with white name and dimension-colored sequence (OVW-1, NTH-1, END-1)
+- Per-dimension sequence numbering with auto-renumber on removal
+- Dynamic dimension tabs — only dimensions with waypoints appear; mod dimensions supported
+- Move waypoints up/down to reorder within a dimension
+- Permanent portal particles ambient around each monument
+- Teleport feedback overlay (biome, monument label, time & weather in Overworld)
+- Tab-based dimension switching in the teleport menu
 - Cross-dimension teleport with mount and leash preservation
-- Multi-language support: English, 简体中文, 日本語, 한국어
+- Coordinate display with one-click clipboard copy
+- Cyan-colored Obsidian Tear item name
+- Multi-language support: English, `简体中文`, `日本語`, `한국어`
 
 ## Compatibility
 
@@ -30,10 +33,11 @@ Place a Redstone Block on top of Crying Obsidian to create a monument. Name it, 
 3. Enter a name in the naming screen
 4. Craft or obtain an Obsidian Tear
 5. Right-click with Obsidian Tear to open the teleport menu
-6. Switch tabs to filter by dimension
+6. Switch tabs to filter by dimension (tabs appear dynamically)
 7. Click a monument entry to teleport
+8. Use ▲/▼ buttons in a dimension tab to reorder waypoints
 
-Breaking either monument block removes the record and its label.
+Breaking either monument block removes the record, renumbers the remaining waypoints in that dimension, and refreshes all labels.
 
 ## Crafting
 
@@ -56,7 +60,7 @@ Requirements:
 .\gradlew.bat build
 ```
 
-Output: `build/libs/obsidiantears-1.1.0.jar`
+Output: `build/libs/obsidiantears-1.2.0.jar`
 
 ## Project Structure
 

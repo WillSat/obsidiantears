@@ -19,4 +19,12 @@ public final class PacketHelper {
     public static void nameWaypoint(Identifier dimension, BlockPos pos, String name) {
         ClientPacketDistributor.sendToServer(new WaypointNamingPacket(dimension, pos, name));
     }
+
+    public static void moveWaypointUp(Identifier dimension, BlockPos pos) {
+        ClientPacketDistributor.sendToServer(new MoveWaypointPacket(dimension, pos, true));
+    }
+
+    public static void moveWaypointDown(Identifier dimension, BlockPos pos) {
+        ClientPacketDistributor.sendToServer(new MoveWaypointPacket(dimension, pos, false));
+    }
 }

@@ -12,6 +12,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextColor;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -61,9 +62,12 @@ public class BlockEventHandler {
 
         BlockPos pos = event.getPos();
         WaypointManager manager = WaypointManager.get(level);
+        Identifier dim = level.dimension().identifier();
+
         if (event.getState().getBlock() == Blocks.REDSTONE_BLOCK && manager.hasWaypoint(level, pos)) {
             manager.removeWaypoint(level, pos);
             removeWaypointLabel(level, pos);
+            refreshDimensionLabels(level, dim, manager);
             return;
         }
 
@@ -71,6 +75,15 @@ public class BlockEventHandler {
         if (event.getState().getBlock() == Blocks.CRYING_OBSIDIAN && manager.hasWaypoint(level, above)) {
             manager.removeWaypoint(level, above);
             removeWaypointLabel(level, above);
+            refreshDimensionLabels(level, dim, manager);
+        }
+    }
+
+    public static void refreshDimensionLabels(ServerLevel level, Identifier dimension, WaypointManager manager) {
+        for (WaypointData wp : manager.getAllWaypoints()) {
+            if (!wp.getDimension().equals(dimension)) continue;
+            removeWaypointLabel(level, wp.getPos());
+            createWaypointLabel(level, wp.getPos(), wp);
         }
     }
 
@@ -78,11 +91,7 @@ public class BlockEventHandler {
         removeWaypointLabel(level, pos);
 
         ArmorStand label = new ArmorStand(level, pos.getX() + 0.5, pos.getY() + 1.25, pos.getZ() + 0.5);
-        MutableComponent labelText = Component.literal(waypoint.getDisplayName())
-            .withStyle(ChatFormatting.LIGHT_PURPLE);
-        labelText.append(Component.literal(" #" + waypoint.getSequence())
-            .withStyle(Style.EMPTY.withColor(TextColor.fromRgb(WaypointData.sequenceColor(waypoint.getSequence())))));
-        label.setCustomName(labelText);
+        label.setCustomName(WaypointData.buildLabelComponent(waypoint));
         label.setCustomNameVisible(true);
         label.setInvulnerable(true);
         label.setNoGravity(true);
