@@ -1,6 +1,7 @@
 package com.obsidiantears.neoforge.client;
 
 import com.obsidiantears.neoforge.ObsidianTears;
+import java.util.Random;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -18,6 +19,8 @@ public final class TeleportFeedbackOverlay {
     private static final int TOTAL_TICKS = 100;
     private static final int FADE_IN_TICKS = 12;
     private static final int FADE_OUT_TICKS = 30;
+    private static final int DECODE_TICKS = 20;
+    private static final Random RANDOM = new Random();
 
     private static Component biomeLine;
     private static Component labelLine;
@@ -26,11 +29,14 @@ public final class TeleportFeedbackOverlay {
     private static int infoColor;
     private static int displayTicks;
     private static boolean showInfo;
+    private static String targetBiomeName;
+    private static int decodeTick;
 
     private TeleportFeedbackOverlay() {}
 
     public static void show(String biomeKey, String waypointName, String qualifiedSequence, int seqColor, String timeText, String weatherText, boolean showInfoLine) {
-        biomeLine = Component.literal(biomeKey.toUpperCase());
+        targetBiomeName = biomeKey.toUpperCase();
+        biomeLine = Component.literal(targetBiomeName);
         biomeColor = seqColor;
         labelLine = Component.literal(waypointName).withStyle(ChatFormatting.WHITE)
             .append(Component.literal(" " + qualifiedSequence)
@@ -41,12 +47,16 @@ public final class TeleportFeedbackOverlay {
         }
         showInfo = showInfoLine;
         displayTicks = TOTAL_TICKS;
+        decodeTick = 0;
     }
 
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Post event) {
         if (displayTicks > 0) {
             displayTicks--;
+            if (decodeTick < DECODE_TICKS) {
+                decodeTick++;
+            }
         }
     }
 
@@ -65,12 +75,33 @@ public final class TeleportFeedbackOverlay {
         int white = withAlpha(0xFFFFFFFF, alpha);
         int biomeArgb = withAlpha(biomeColor, alpha);
 
-        // Line 1: biome name, large font
-        int biomeWidth = mc.font.width(biomeLine);
-        graphics.pose().pushMatrix();
-        graphics.pose().scaleAround(1.4F, right, y + 7);
-        graphics.centeredText(mc.font, biomeLine, right - biomeWidth / 2, y, biomeArgb);
-        graphics.pose().popMatrix();
+        // Line 1: biome name with decode animation
+        if (targetBiomeName != null) {
+            String name = targetBiomeName;
+            int nameLen = name.length();
+            int decodedCount = decodeTick >= DECODE_TICKS ? nameLen : (decodeTick * nameLen) / DECODE_TICKS;
+
+            int biomeWidth = mc.font.width(name);
+            int charX = right - biomeWidth;
+
+            graphics.pose().pushMatrix();
+            graphics.pose().scaleAround(1.4F, right, y + 7);
+
+            for (int i = 0; i < nameLen; i++) {
+                String charStr;
+                int color;
+                if (i < decodedCount) {
+                    charStr = String.valueOf(name.charAt(i));
+                    color = biomeArgb;
+                } else {
+                    charStr = String.valueOf((char) ('A' + RANDOM.nextInt(26)));
+                    color = white;
+                }
+                graphics.text(mc.font, charStr, charX, y, color);
+                charX += mc.font.width(charStr);
+            }
+            graphics.pose().popMatrix();
+        }
         y += 22;
 
         // Line 2: label, normal font

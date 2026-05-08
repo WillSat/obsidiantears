@@ -11,7 +11,10 @@
       "Bash(jar tf *)",
       "Bash(./gradlew dependencies *)",
       "Bash(grep -r \"RenderGuiEvent\\\\|RenderGuiLayerEvent\\\\|CustomizeGuiOverlayEvent\" . --include=\"*.java\")",
-      "Bash(grep -r \"import net.neoforged.*client.*event\" . --include=\"*.java\")"
+      "Bash(grep -r \"import net.neoforged.*client.*event\" . --include=\"*.java\")",
+      "Bash(xargs -I {} sh -c 'jar tf {} 2>/dev/null | grep -l \"GuiGraphicsExtractor\"')",
+      "Bash(unzip -l \"D:/Project/obsidiantears/build/moddev/artifacts/minecraft-patched-26.1.2.0-beta-merged.jar\")",
+      "Bash(unzip -p \"D:/Project/obsidiantears/build/moddev/artifacts/minecraft-patched-26.1.2.0-beta-sources.jar\" \"net/minecraft/client/gui/GuiGraphicsExtractor.java\")"
     ]
   }
 }
