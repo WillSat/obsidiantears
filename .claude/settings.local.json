@@ -14,7 +14,18 @@
       "Bash(grep -r \"import net.neoforged.*client.*event\" . --include=\"*.java\")",
       "Bash(xargs -I {} sh -c 'jar tf {} 2>/dev/null | grep -l \"GuiGraphicsExtractor\"')",
       "Bash(unzip -l \"D:/Project/obsidiantears/build/moddev/artifacts/minecraft-patched-26.1.2.0-beta-merged.jar\")",
-      "Bash(unzip -p \"D:/Project/obsidiantears/build/moddev/artifacts/minecraft-patched-26.1.2.0-beta-sources.jar\" \"net/minecraft/client/gui/GuiGraphicsExtractor.java\")"
+      "Bash(unzip -p \"D:/Project/obsidiantears/build/moddev/artifacts/minecraft-patched-26.1.2.0-beta-sources.jar\" \"net/minecraft/client/gui/GuiGraphicsExtractor.java\")",
+      "Bash(unzip -p \"D:/Project/obsidiantears/build/moddev/artifacts/minecraft-patched-26.1.2.0-beta-merged.jar\" \"net/minecraft/client/gui/Gui.class\")",
+      "Bash(javap -p -c)",
+      "Bash(unzip -l \"D:/Project/obsidiantears/build/moddev/artifacts/minecraft-patched-26.1.2.0-beta-sources.jar\")",
+      "Bash(unzip -p \"D:/Project/obsidiantears/build/moddev/artifacts/minecraft-patched-26.1.2.0-beta-sources.jar\" \"net/minecraft/client/gui/Gui.java\")",
+      "Read(//tmp/**)",
+      "Read(//d//**)",
+      "Bash(unzip -l \"/c/Users/willi/.gradle/caches/modules-2/files-2.1/net.neoforged/neoforge/26.1.2.0-beta/3943e20bcd0b9213bd7030b9c2df3c05638fc5bd/neoforge-26.1.2.0-beta-userdev.jar\")",
+      "Bash(unzip -l \"/c/Users/willi/.gradle/caches/modules-2/files-2.1/net.neoforged/neoforge/26.1.2.0-beta/ebd0cad36becf5c4e1f1b60ba47590d327a33f01/neoforge-26.1.2.0-beta-sources.jar\")",
+      "Bash(unzip -p \"/c/Users/willi/.gradle/caches/modules-2/files-2.1/net.neoforged/neoforge/26.1.2.0-beta/ebd0cad36becf5c4e1f1b60ba47590d327a33f01/neoforge-26.1.2.0-beta-sources.jar\" \"net/neoforged/neoforge/client/gui/VanillaGuiLayers.java\")",
+      "Bash(unzip -p \"/c/Users/willi/.gradle/caches/modules-2/files-2.1/net.neoforged/neoforge/26.1.2.0-beta/ebd0cad36becf5c4e1f1b60ba47590d327a33f01/neoforge-26.1.2.0-beta-sources.jar\" \"net/neoforged/neoforge/client/event/RenderGuiLayerEvent.java\")",
+      "Bash(unzip -p \"/c/Users/willi/.gradle/caches/modules-2/files-2.1/net.neoforged/neoforge/26.1.2.0-beta/ebd0cad36becf5c4e1f1b60ba47590d327a33f01/neoforge-26.1.2.0-beta-sources.jar\" \"net/neoforged/neoforge/client/gui/GuiLayerManager.java\")"
     ]
   }
 }

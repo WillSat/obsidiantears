@@ -13,6 +13,8 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RenderGuiEvent;
+import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
+import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 
 @EventBusSubscriber(modid = ObsidianTears.MODID, value = Dist.CLIENT)
 public final class TeleportFeedbackOverlay {
@@ -20,6 +22,7 @@ public final class TeleportFeedbackOverlay {
     private static final int FADE_IN_TICKS = 12;
     private static final int FADE_OUT_TICKS = 30;
     private static final int DECODE_TICKS = 20;
+    private static final int POTION_FADE_IN_TICKS = 15;
     private static final Random RANDOM = new Random();
 
     private static Component biomeLine;
@@ -31,6 +34,7 @@ public final class TeleportFeedbackOverlay {
     private static boolean showInfo;
     private static String targetBiomeName;
     private static int decodeTick;
+    private static int potionFadeInTicks;
 
     private TeleportFeedbackOverlay() {}
 
@@ -48,6 +52,7 @@ public final class TeleportFeedbackOverlay {
         showInfo = showInfoLine;
         displayTicks = TOTAL_TICKS;
         decodeTick = 0;
+        potionFadeInTicks = 0;
     }
 
     @SubscribeEvent
@@ -57,6 +62,18 @@ public final class TeleportFeedbackOverlay {
             if (decodeTick < DECODE_TICKS) {
                 decodeTick++;
             }
+            if (displayTicks == 0) {
+                potionFadeInTicks = POTION_FADE_IN_TICKS;
+            }
+        } else if (potionFadeInTicks > 0) {
+            potionFadeInTicks--;
+        }
+    }
+
+    @SubscribeEvent
+    public static void onRenderEffectsLayerPre(RenderGuiLayerEvent.Pre event) {
+        if (event.getName().equals(VanillaGuiLayers.EFFECTS) && (displayTicks > 0 || potionFadeInTicks > 0)) {
+            event.setCanceled(true);
         }
     }
 
