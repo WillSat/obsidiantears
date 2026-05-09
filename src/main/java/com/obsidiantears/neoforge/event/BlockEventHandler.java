@@ -28,6 +28,8 @@ import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
 public class BlockEventHandler {
@@ -88,6 +90,8 @@ public class BlockEventHandler {
     }
 
     private static void createWaypointLabel(Level level, BlockPos pos, WaypointData waypoint) {
+        if (!level.isLoaded(pos)) return;
+
         removeWaypointLabel(level, pos);
 
         ArmorStand label = new ArmorStand(level, pos.getX() + 0.5, pos.getY() + 1.25, pos.getZ() + 0.5);
@@ -108,8 +112,12 @@ public class BlockEventHandler {
     }
 
     private static void removeWaypointLabel(Level level, BlockPos pos) {
+        if (!level.isLoaded(pos)) return;
+
+        BlockPos labelBlockPos = BlockPos.containing(pos.getX() + 0.5, pos.getY() + 1.25, pos.getZ() + 0.5);
         for (ArmorStand stand : level.getEntitiesOfClass(ArmorStand.class, labelArea(pos))) {
-            if (stand.entityTags().contains(LABEL_TAG)) {
+            if (stand.entityTags().contains(LABEL_TAG)
+                && BlockPos.containing(stand.getX(), stand.getY(), stand.getZ()).equals(labelBlockPos)) {
                 stand.remove(Entity.RemovalReason.DISCARDED);
             }
         }
@@ -126,10 +134,54 @@ public class BlockEventHandler {
             if (targetLevel == null || !targetLevel.isLoaded(waypoint.getPos())) continue;
 
             BlockPos pos = waypoint.getPos();
+            verifyWaypointLabel(targetLevel, pos, waypoint);
+
             targetLevel.sendParticles(ParticleTypes.PORTAL,
                 pos.getX() + 0.5, pos.getY() + 1.2, pos.getZ() + 0.5,
                 2, 0.15, 0.15, 0.15, 0.02);
         }
+    }
+
+    private static void verifyWaypointLabel(ServerLevel level, BlockPos pos, WaypointData waypoint) {
+        if (!level.isLoaded(pos)) return;
+
+        BlockPos labelBlockPos = BlockPos.containing(pos.getX() + 0.5, pos.getY() + 1.25, pos.getZ() + 0.5);
+        List<ArmorStand> labels = new ArrayList<>();
+        for (ArmorStand stand : level.getEntitiesOfClass(ArmorStand.class, labelArea(pos))) {
+            if (stand.entityTags().contains(LABEL_TAG)
+                && BlockPos.containing(stand.getX(), stand.getY(), stand.getZ()).equals(labelBlockPos)) {
+                labels.add(stand);
+            }
+        }
+
+        // Find the first non-removed label to keep; discard everything else
+        ArmorStand keep = null;
+        for (ArmorStand stand : labels) {
+            if (!stand.isRemoved() && keep == null) {
+                keep = stand;
+            } else {
+                stand.remove(Entity.RemovalReason.DISCARDED);
+            }
+        }
+
+        if (keep == null) {
+            createWaypointLabel(level, pos, waypoint);
+            return;
+        }
+
+        // Verify and fix custom name
+        Component expectedName = WaypointData.buildLabelComponent(waypoint);
+        if (keep.getCustomName() == null || !keep.getCustomName().getString().equals(expectedName.getString())) {
+            keep.setCustomName(expectedName);
+        }
+
+        // Verify and fix entity properties (defensive — guards against external mutation)
+        keep.setInvisible(true);
+        keep.setNoGravity(true);
+        keep.setInvulnerable(true);
+        keep.setSilent(true);
+        keep.setNoBasePlate(true);
+        keep.setCustomNameVisible(true);
     }
 
     private static AABB labelArea(BlockPos pos) {

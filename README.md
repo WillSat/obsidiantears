@@ -60,7 +60,7 @@ Requirements:
 .\gradlew.bat build
 ```
 
-Output: `build/libs/obsidiantears-1.2.0.jar`
+Output: `build/libs/obsidiantears-1.2.2.jar`
 
 ## Project Structure
 
@@ -72,3 +72,13 @@ Output: `build/libs/obsidiantears-1.2.0.jar`
 ## License
 
 MIT. See [LICENSE](LICENSE).
+
+## Changelog
+
+### 1.2.2
+
+- Fixed duplicate labels stacking on monuments after reordering waypoints from unloaded chunks
+- Fixed `WaypointNamingPacket` updating wrong monument labels when monuments are adjacent
+- Fixed label removal AABB overlap that could remove neighboring monument labels
+- Tick-based label self-healing: verifies label count, name, and entity properties every 1.5s for loaded monuments
+- Fixed "All" tab dimension grouping order in teleport menu

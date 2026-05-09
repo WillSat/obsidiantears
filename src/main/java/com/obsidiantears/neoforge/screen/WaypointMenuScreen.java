@@ -109,8 +109,8 @@ public class WaypointMenuScreen extends Screen {
     private void rebuildWaypointButtons() {
         clearWidgets();
 
-        rows = buildTabRows();
         dimensionTabs = buildDimensionTabs();
+        rows = buildTabRows();
         int tabCount = dimensionTabs.size() + 1;
         if (currentTab >= tabCount) {
             currentTab = 0;

@@ -58,8 +58,10 @@ public record WaypointNamingPacket(Identifier dimension, BlockPos pos, String na
             return;
         }
 
+        BlockPos labelBlockPos = BlockPos.containing(packet.pos.getX() + 0.5, packet.pos.getY() + 1.25, packet.pos.getZ() + 0.5);
         labelLevel.getEntitiesOfClass(ArmorStand.class, labelArea(packet.pos)).forEach(stand -> {
-            if (stand.entityTags().contains(ObsidianTears.MODID + "_waypoint_label")) {
+            if (stand.entityTags().contains(ObsidianTears.MODID + "_waypoint_label")
+                && BlockPos.containing(stand.getX(), stand.getY(), stand.getZ()).equals(labelBlockPos)) {
                 stand.setCustomName(WaypointData.buildLabelComponent(waypoint));
             }
         });
