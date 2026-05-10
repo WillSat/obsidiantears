@@ -27,7 +27,8 @@
       "Bash(unzip -p \"/c/Users/willi/.gradle/caches/modules-2/files-2.1/net.neoforged/neoforge/26.1.2.0-beta/ebd0cad36becf5c4e1f1b60ba47590d327a33f01/neoforge-26.1.2.0-beta-sources.jar\" \"net/neoforged/neoforge/client/event/RenderGuiLayerEvent.java\")",
       "Bash(unzip -p \"/c/Users/willi/.gradle/caches/modules-2/files-2.1/net.neoforged/neoforge/26.1.2.0-beta/ebd0cad36becf5c4e1f1b60ba47590d327a33f01/neoforge-26.1.2.0-beta-sources.jar\" \"net/neoforged/neoforge/client/gui/GuiLayerManager.java\")",
       "Bash(grep -i \"minecraft\" gradle.properties)",
-      "Bash(grep -i \"neoform\\\\|minecraft_version\\\\|mc_version\" gradle.properties)"
+      "Bash(grep -i \"neoform\\\\|minecraft_version\\\\|mc_version\" gradle.properties)",
+      "Bash(./gradlew.bat build *)"
     ]
   }
 }

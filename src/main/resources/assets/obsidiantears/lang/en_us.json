@@ -20,6 +20,7 @@
   "screen.obsidiantears.teleport.previous": "▲",
   "screen.obsidiantears.teleport.next": "▼",
   "screen.obsidiantears.teleport.limit": "This dimension has reached the maximum of 1024 waypoints.",
+  "screen.obsidiantears.teleport.return": "Return to Previous Position",
   "screen.obsidiantears.teleport.copied": "Coordinates copied to clipboard",
 
   "screen.obsidiantears.naming.title": "Name Teleport Monument",
@@ -35,6 +36,9 @@
   "dimension.obsidiantears.overworld": "Overworld",
   "dimension.obsidiantears.nether": "Nether",
   "dimension.obsidiantears.end": "End",
+
+  "advancement.obsidiantears.obtain_obsidian_tear": "Obsidian Tear Drop",
+  "advancement.obsidiantears.obtain_obsidian_tear.desc": "Obtain an Obsidian Tear Drop",
 
   "obsidiantears.configuration.title": "Obsidian Tears Config",
   "obsidiantears.configuration.section.obsidiantears.common.toml": "Obsidian Tears Config",

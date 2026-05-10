@@ -20,6 +20,7 @@
   "screen.obsidiantears.teleport.previous": "▲",
   "screen.obsidiantears.teleport.next": "▼",
   "screen.obsidiantears.teleport.limit": "このディメンションは最大1024個の転送碑に達しています。",
+  "screen.obsidiantears.teleport.return": "テレポート前の位置に戻る",
   "screen.obsidiantears.teleport.copied": "座標をクリップボードにコピーしました",
 
   "screen.obsidiantears.naming.title": "転送碑に名前を付ける",
@@ -35,6 +36,9 @@
   "dimension.obsidiantears.overworld": "オーバーワールド",
   "dimension.obsidiantears.nether": "ネザー",
   "dimension.obsidiantears.end": "ジ・エンド",
+
+  "advancement.obsidiantears.obtain_obsidian_tear": "黒曜石の涙滴",
+  "advancement.obsidiantears.obtain_obsidian_tear.desc": "黒曜石の涙滴を入手する",
 
   "obsidiantears.configuration.title": "黒曜石の涙の設定",
   "obsidiantears.configuration.section.obsidiantears.common.toml": "黒曜石の涙の設定",

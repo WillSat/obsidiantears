@@ -28,7 +28,7 @@ public class ObsidianTears {
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(MODID);
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
 
-    public static final DeferredItem<Item> OBSIDIAN_TEAR_DROP = ITEMS.registerItem("obsidian_tear_drop", ObsidianTearDropItem::new);
+    public static final DeferredItem<Item> OBSIDIAN_TEAR_DROP = ITEMS.registerItem("obsidian_tear_drop", properties -> new ObsidianTearDropItem(properties.fireResistant()));
 
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> OBSIDIAN_TEARS_TAB = CREATIVE_MODE_TABS.register("obsidian_tears", () ->
         CreativeModeTab.builder()

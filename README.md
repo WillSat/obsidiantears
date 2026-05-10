@@ -20,6 +20,8 @@ Place a Redstone Block on top of Crying Obsidian to create a monument. Name it, 
 - Cross-dimension teleport with mount and leash preservation
 - Coordinate display with one-click clipboard copy
 - Cyan-colored Obsidian Tear item name
+- Enchanted glint effect on the Obsidian Tear item
+- Advancement: "Obsidian Tear Drop" triggered when first obtaining the item
 - Multi-language support: English, `简体中文`, `日本語`, `한국어`
 
 ## Compatibility
@@ -43,13 +45,18 @@ Breaking either monument block removes the record, renumbers the remaining waypo
 
 ## Crafting
 
-Obsidian Tear (shapeless):
+Obsidian Tear (shaped):
 
-- 1 Gold Nugget
-- 1 Redstone Dust
-- 1 Glowstone Dust
+```
+A A A
+A D A
+A A A
+```
 
-The item uses the Gold Nugget model with an enchanted glint.
+- A: Amethyst Shard (×8)
+- D: Diamond (×1)
+
+The item is fire-resistant, unbreakable, and can mine obsidian in 2 seconds.
 
 ## Building
 
@@ -62,7 +69,7 @@ Requirements:
 .\gradlew.bat build
 ```
 
-Output: `build/libs/obsidiantears-1.3.jar`
+Output: `build/libs/obsidiantears-1.4.jar`
 
 ## Project Structure
 
@@ -76,6 +83,15 @@ Output: `build/libs/obsidiantears-1.3.jar`
 MIT. See [LICENSE](LICENSE).
 
 ## Changelog
+
+### 1.4
+
+- Return teleport: right-click menu now includes a button to return to the position before your most recent waypoint teleport (dimension-aware)
+- Right-click menu can be closed with the E key
+- HUD overlay: third line (time/weather) font enlarged and color changed to white; reduced line spacing
+- Recipe changed: 8 Amethyst Shards around 1 Diamond (shaped crafting)
+- Obsidian Tear Drop is now fire/lava-resistant, can mine obsidian (2s), unbreakable, and has an enchantment glint
+- Advancement "Obsidian Tear Drop" triggers on first obtaining the item
 
 ### 1.3
 

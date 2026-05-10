@@ -42,9 +42,13 @@ public final class TeleportFeedbackOverlay {
         targetBiomeName = biomeKey.toUpperCase();
         biomeLine = Component.literal(targetBiomeName);
         biomeColor = seqColor;
-        labelLine = Component.literal(waypointName).withStyle(ChatFormatting.WHITE)
-            .append(Component.literal(" " + qualifiedSequence)
-                .withStyle(Style.EMPTY.withColor(TextColor.fromRgb(seqColor))));
+        if (waypointName != null && !waypointName.isEmpty()) {
+            labelLine = Component.literal(waypointName).withStyle(ChatFormatting.WHITE)
+                .append(Component.literal(" " + qualifiedSequence)
+                    .withStyle(Style.EMPTY.withColor(TextColor.fromRgb(seqColor))));
+        } else {
+            labelLine = null;
+        }
         if (showInfoLine) {
             infoLine = Component.literal(timeText + "  " + weatherText);
             infoColor = seqColor;
@@ -139,20 +143,20 @@ public final class TeleportFeedbackOverlay {
         }
         // Line 2: label, normal font — only after mod teleport
         if (labelLine != null) {
-            y += 22;
+            y += 14;
             int labelWidth = mc.font.width(labelLine);
             graphics.centeredText(mc.font, labelLine, right - labelWidth / 2, y, white);
-            y += 14;
+            y += 9;
         } else {
-            y += 22;
+            y += 14;
         }
 
-        // Line 3: time & weather, small font, only in overworld
+        // Line 3: time & weather, only in overworld
         if (showInfo && infoLine != null) {
             int infoWidth = mc.font.width(infoLine);
-            int infoArgb = withAlpha(infoColor, alpha);
+            int infoArgb = withAlpha(0xFFFFFFFF, alpha);
             graphics.pose().pushMatrix();
-            graphics.pose().scaleAround(0.7F, right, y + 5);
+            graphics.pose().scaleAround(0.85F, right, y + 5);
             graphics.centeredText(mc.font, infoLine, right - infoWidth / 2, y, infoArgb);
             graphics.pose().popMatrix();
         }

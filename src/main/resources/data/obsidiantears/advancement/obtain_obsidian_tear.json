@@ -1,0 +1,33 @@
+{
+  "display": {
+    "icon": {
+      "id": "obsidiantears:obsidian_tear_drop"
+    },
+    "title": {
+      "translate": "advancement.obsidiantears.obtain_obsidian_tear"
+    },
+    "description": {
+      "translate": "advancement.obsidiantears.obtain_obsidian_tear.desc"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "parent": "minecraft:story/root",
+  "criteria": {
+    "has_obsidian_tear": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "obsidiantears:obsidian_tear_drop"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    ["has_obsidian_tear"]
+  ]
+}

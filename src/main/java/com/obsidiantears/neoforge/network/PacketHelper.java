@@ -27,4 +27,8 @@ public final class PacketHelper {
     public static void moveWaypointDown(Identifier dimension, BlockPos pos) {
         ClientPacketDistributor.sendToServer(new MoveWaypointPacket(dimension, pos, false));
     }
+
+    public static void requestReturnTeleport(Identifier dimension, BlockPos pos) {
+        ClientPacketDistributor.sendToServer(new ReturnTeleportPacket(dimension, pos));
+    }
 }

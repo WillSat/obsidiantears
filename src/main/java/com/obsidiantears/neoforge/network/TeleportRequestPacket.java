@@ -114,7 +114,7 @@ public record TeleportRequestPacket(Identifier targetDimension, BlockPos targetP
             timeText, weather, isOverworld));
     }
 
-    private static List<LeashedEntity> collectLeashedEntities(ServerPlayer player, Entity rootVehicle) {
+    static List<LeashedEntity> collectLeashedEntities(ServerPlayer player, Entity rootVehicle) {
         List<LeashedEntity> result = new ArrayList<>();
         for (Leashable leashable : Leashable.leashableLeashedTo(player)) {
             if (leashable instanceof Entity entity && entity != rootVehicle && !rootVehicle.hasIndirectPassenger(entity)) {
@@ -124,7 +124,7 @@ public record TeleportRequestPacket(Identifier targetDimension, BlockPos targetP
         return result;
     }
 
-    private static Vec3 leashOffset(ServerPlayer player, Entity entity) {
+    static Vec3 leashOffset(ServerPlayer player, Entity entity) {
         Vec3 offset = entity.position().subtract(player.position());
         if (offset.lengthSqr() > 16.0) {
             return offset.normalize().scale(2.0);
@@ -132,7 +132,7 @@ public record TeleportRequestPacket(Identifier targetDimension, BlockPos targetP
         return offset;
     }
 
-    private static void restoreLeashedEntities(ServerPlayer player, ServerLevel targetLevel, double targetX, double targetY, double targetZ, List<LeashedEntity> leashedEntities) {
+    static void restoreLeashedEntities(ServerPlayer player, ServerLevel targetLevel, double targetX, double targetY, double targetZ, List<LeashedEntity> leashedEntities) {
         for (LeashedEntity leashed : leashedEntities) {
             Entity entity = findEntity(player.level(), targetLevel, leashed.uuid());
             if (entity == null) {
@@ -148,15 +148,15 @@ public record TeleportRequestPacket(Identifier targetDimension, BlockPos targetP
         }
     }
 
-    private static Entity findEntity(ServerLevel sourceLevel, ServerLevel targetLevel, UUID uuid) {
+    static Entity findEntity(ServerLevel sourceLevel, ServerLevel targetLevel, UUID uuid) {
         Entity entity = targetLevel.getEntity(uuid);
         return entity != null ? entity : sourceLevel.getEntity(uuid);
     }
 
-    private static void spawnTeleportParticles(ServerLevel level, double x, double y, double z) {
+    static void spawnTeleportParticles(ServerLevel level, double x, double y, double z) {
         level.sendParticles(ParticleTypes.PORTAL, x, y, z, 40, 0.4, 1.2, 0.4, 0.05);
     }
 
-    private record LeashedEntity(UUID uuid, Vec3 offset, float yRot, float xRot) {
+    record LeashedEntity(UUID uuid, Vec3 offset, float yRot, float xRot) {
     }
 }

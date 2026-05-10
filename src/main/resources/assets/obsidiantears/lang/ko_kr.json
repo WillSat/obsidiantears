@@ -20,6 +20,7 @@
   "screen.obsidiantears.teleport.previous": "▲",
   "screen.obsidiantears.teleport.next": "▼",
   "screen.obsidiantears.teleport.limit": "이 차원은 최대 1024개의 전송비에 도달했습니다.",
+  "screen.obsidiantears.teleport.return": "텔레포트 전 위치로 돌아가기",
   "screen.obsidiantears.teleport.copied": "좌표가 클립보드에 복사되었습니다",
 
   "screen.obsidiantears.naming.title": "전송비 이름 짓기",
@@ -35,6 +36,9 @@
   "dimension.obsidiantears.overworld": "오버월드",
   "dimension.obsidiantears.nether": "네더",
   "dimension.obsidiantears.end": "엔드",
+
+  "advancement.obsidiantears.obtain_obsidian_tear": "흑요석 눈물방울",
+  "advancement.obsidiantears.obtain_obsidian_tear.desc": "흑요석 눈물방울을 획득하세요",
 
   "obsidiantears.configuration.title": "흑요석의 눈물 설정",
   "obsidiantears.configuration.section.obsidiantears.common.toml": "흑요석의 눈물 설정",

@@ -3,10 +3,12 @@ package com.obsidiantears.neoforge.screen;
 import com.obsidiantears.neoforge.network.PacketHelper;
 import com.obsidiantears.neoforge.waypoint.WaypointData;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
@@ -30,6 +32,9 @@ public class WaypointMenuScreen extends Screen {
         Identifier.fromNamespaceAndPath("minecraft", "the_nether"),
         Identifier.fromNamespaceAndPath("minecraft", "the_end")
     );
+
+    private static BlockPos preTeleportPos;
+    private static Identifier preTeleportDim;
 
     private List<WaypointData> allWaypoints = new ArrayList<>();
     private List<DisplayRow> rows = new ArrayList<>();
@@ -212,6 +217,7 @@ public class WaypointMenuScreen extends Screen {
 
         // --- bottom bar ---
         int bottomY = this.height - 40;
+        boolean hasReturn = preTeleportPos != null && preTeleportDim != null;
         if (buttonWidth >= 280) {
             int halfWidth = (buttonWidth - BUTTON_GAP) / 2;
             Button refresh = Button.builder(Component.translatable("screen.obsidiantears.teleport.refresh"), btn -> refreshWaypoints())
@@ -222,10 +228,22 @@ public class WaypointMenuScreen extends Screen {
             this.addRenderableWidget(Button.builder(Component.translatable("gui.obsidiantears.close"), btn -> this.onClose())
                 .bounds(startX + halfWidth + BUTTON_GAP, bottomY, halfWidth, BUTTON_HEIGHT)
                 .build());
+            if (hasReturn) {
+                bottomY -= BUTTON_HEIGHT + BUTTON_GAP;
+                this.addRenderableWidget(Button.builder(Component.translatable("screen.obsidiantears.teleport.return"), btn -> returnToPreTeleport())
+                    .bounds(startX, bottomY, buttonWidth, BUTTON_HEIGHT)
+                    .build());
+            }
         } else {
             this.addRenderableWidget(Button.builder(Component.translatable("gui.obsidiantears.close"), btn -> this.onClose())
                 .bounds(startX, bottomY, buttonWidth, BUTTON_HEIGHT)
                 .build());
+            if (hasReturn) {
+                bottomY -= BUTTON_HEIGHT + BUTTON_GAP;
+                this.addRenderableWidget(Button.builder(Component.translatable("screen.obsidiantears.teleport.return"), btn -> returnToPreTeleport())
+                    .bounds(startX, bottomY, buttonWidth, BUTTON_HEIGHT)
+                    .build());
+            }
         }
     }
 
@@ -239,6 +257,10 @@ public class WaypointMenuScreen extends Screen {
     public boolean keyPressed(net.minecraft.client.input.KeyEvent event) {
         if (event.key() == GLFW.GLFW_KEY_R) {
             refreshWaypoints();
+            return true;
+        }
+        if (event.key() == GLFW.GLFW_KEY_E) {
+            this.onClose();
             return true;
         }
         if (!loaded || rows.isEmpty()) {
@@ -353,7 +375,27 @@ public class WaypointMenuScreen extends Screen {
     }
 
     private void teleportToWaypoint(WaypointData waypoint) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player != null) {
+            preTeleportPos = mc.player.blockPosition();
+            preTeleportDim = mc.player.level().dimension().identifier();
+        }
         PacketHelper.requestTeleport(waypoint.getDimension(), waypoint.getPos());
+        this.onClose();
+    }
+
+    private void returnToPreTeleport() {
+        if (preTeleportPos == null || preTeleportDim == null) return;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player != null) {
+            BlockPos currentPos = mc.player.blockPosition();
+            Identifier currentDim = mc.player.level().dimension().identifier();
+            Identifier targetDim = preTeleportDim;
+            BlockPos targetPos = preTeleportPos;
+            preTeleportPos = currentPos;
+            preTeleportDim = currentDim;
+            PacketHelper.requestReturnTeleport(targetDim, targetPos);
+        }
         this.onClose();
     }
 

@@ -20,6 +20,7 @@
   "screen.obsidiantears.teleport.previous": "▲",
   "screen.obsidiantears.teleport.next": "▼",
   "screen.obsidiantears.teleport.limit": "该维度已达到 1024 个传送碑的上限。",
+  "screen.obsidiantears.teleport.return": "返回传送前位置",
   "screen.obsidiantears.teleport.copied": "坐标已复制到剪贴板",
 
   "screen.obsidiantears.naming.title": "命名传送碑",
@@ -35,6 +36,9 @@
   "dimension.obsidiantears.overworld": "主世界",
   "dimension.obsidiantears.nether": "下界",
   "dimension.obsidiantears.end": "末地",
+
+  "advancement.obsidiantears.obtain_obsidian_tear": "黑曜石泪滴",
+  "advancement.obsidiantears.obtain_obsidian_tear.desc": "获得一个黑曜石泪滴",
 
   "obsidiantears.configuration.title": "黑曜石之泪配置",
   "obsidiantears.configuration.section.obsidiantears.common.toml": "黑曜石之泪配置",
