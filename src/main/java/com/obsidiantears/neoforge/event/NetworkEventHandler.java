@@ -5,6 +5,7 @@ import com.obsidiantears.neoforge.network.MoveWaypointPacket;
 import com.obsidiantears.neoforge.network.NamingPacket;
 import com.obsidiantears.neoforge.network.RequestWaypointsPacket;
 import com.obsidiantears.neoforge.network.SyncWaypointsPacket;
+import com.obsidiantears.neoforge.network.BiomeEntryPacket;
 import com.obsidiantears.neoforge.network.TeleportFeedbackPacket;
 import com.obsidiantears.neoforge.network.TeleportRequestPacket;
 import com.obsidiantears.neoforge.network.WaypointNamingPacket;
@@ -23,5 +24,6 @@ public class NetworkEventHandler {
         registrar.playToClient(SyncWaypointsPacket.TYPE, SyncWaypointsPacket.CODEC, SyncWaypointsPacket::handle);
         registrar.playToClient(NamingPacket.TYPE, NamingPacket.CODEC, NamingPacket::handle);
         registrar.playToClient(TeleportFeedbackPacket.TYPE, TeleportFeedbackPacket.CODEC, TeleportFeedbackPacket::handle);
+        registrar.playToClient(BiomeEntryPacket.TYPE, BiomeEntryPacket.CODEC, BiomeEntryPacket::handle);
     }
 }

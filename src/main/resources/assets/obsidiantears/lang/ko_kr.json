@@ -19,6 +19,7 @@
   "screen.obsidiantears.teleport.refresh": "새로고침",
   "screen.obsidiantears.teleport.previous": "▲",
   "screen.obsidiantears.teleport.next": "▼",
+  "screen.obsidiantears.teleport.limit": "이 차원은 최대 1024개의 전송비에 도달했습니다.",
   "screen.obsidiantears.teleport.copied": "좌표가 클립보드에 복사되었습니다",
 
   "screen.obsidiantears.naming.title": "전송비 이름 짓기",

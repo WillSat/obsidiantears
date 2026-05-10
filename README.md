@@ -14,6 +14,8 @@ Place a Redstone Block on top of Crying Obsidian to create a monument. Name it, 
 - Move waypoints up/down to reorder within a dimension
 - Permanent portal particles ambient around each monument
 - Teleport feedback overlay (biome, monument label, time & weather in Overworld)
+- Biome entry overlay: biome name + time/weather shown on entering a new biome via vanilla movement
+- Max 1024 waypoints per dimension limit
 - Tab-based dimension switching in the teleport menu
 - Cross-dimension teleport with mount and leash preservation
 - Coordinate display with one-click clipboard copy
@@ -60,7 +62,7 @@ Requirements:
 .\gradlew.bat build
 ```
 
-Output: `build/libs/obsidiantears-1.2.2.jar`
+Output: `build/libs/obsidiantears-1.3.jar`
 
 ## Project Structure
 
@@ -74,6 +76,13 @@ Output: `build/libs/obsidiantears-1.2.2.jar`
 MIT. See [LICENSE](LICENSE).
 
 ## Changelog
+
+### 1.3
+
+- Biome entry overlay: top-right HUD shown when entering a new biome via vanilla movement (biome name + time/weather in Overworld only)
+- Rapid overlay suppression: new display requests ignored while current overlay is still active
+- Max waypoint limit: 1024 per dimension with in-game warning on attempt to exceed
+- Performance: biome change detection reduced to every 2 seconds per player
 
 ### 1.2.2
 

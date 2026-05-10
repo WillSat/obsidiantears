@@ -19,6 +19,7 @@
   "screen.obsidiantears.teleport.refresh": "刷新",
   "screen.obsidiantears.teleport.previous": "▲",
   "screen.obsidiantears.teleport.next": "▼",
+  "screen.obsidiantears.teleport.limit": "该维度已达到 1024 个传送碑的上限。",
   "screen.obsidiantears.teleport.copied": "坐标已复制到剪贴板",
 
   "screen.obsidiantears.naming.title": "命名传送碑",

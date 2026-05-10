@@ -1,6 +1,7 @@
 package com.obsidiantears.neoforge.network;
 
 import com.obsidiantears.neoforge.ObsidianTears;
+import com.obsidiantears.neoforge.event.BlockEventHandler;
 import com.obsidiantears.neoforge.waypoint.WaypointData;
 import com.obsidiantears.neoforge.waypoint.WaypointManager;
 import net.minecraft.core.BlockPos;
@@ -86,6 +87,9 @@ public record TeleportRequestPacket(Identifier targetDimension, BlockPos targetP
         String rawBiome = targetLevel.getBiome(pos).getRegisteredName();
         int colon = rawBiome.indexOf(':');
         String biomeKey = colon >= 0 ? rawBiome.substring(colon + 1) : rawBiome;
+
+        BlockEventHandler.updateLastBiome(player, targetLevel.getBiome(pos));
+
         boolean isOverworld = targetLevel.dimension().equals(net.minecraft.world.level.Level.OVERWORLD);
         long dayTime = targetLevel.getGameTime() % 24000;
         int totalMinutes = (int) ((dayTime + 6000) % 24000 * 60 / 1000);

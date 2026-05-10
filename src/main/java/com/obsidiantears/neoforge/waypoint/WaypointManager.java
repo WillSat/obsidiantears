@@ -15,6 +15,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class WaypointManager extends SavedData {
+    private static final int MAX_PER_DIMENSION = 1024;
     private static final Identifier ID = Identifier.fromNamespaceAndPath("obsidiantears", "waypoints");
     private static final Codec<WaypointManager> CODEC = CompoundTag.CODEC.xmap(WaypointManager::fromTag, WaypointManager::toTag);
     private static final SavedDataType<WaypointManager> TYPE = new SavedDataType<>(ID, WaypointManager::new, CODEC);
@@ -40,6 +41,9 @@ public class WaypointManager extends SavedData {
         }
 
         Identifier dim = level.dimension().identifier();
+        if (countInDimension(dim) >= MAX_PER_DIMENSION) {
+            return null;
+        }
         int sequence = nextSequenceForDimension(dim);
         WaypointData waypoint = new WaypointData(playerName, dim, pos, sequence, "Unnamed Monument");
         waypoints.put(key, waypoint);
@@ -58,10 +62,14 @@ public class WaypointManager extends SavedData {
         }
     }
 
-    private int nextSequenceForDimension(Identifier dimension) {
-        return (int) waypoints.values().stream()
+    private long countInDimension(Identifier dimension) {
+        return waypoints.values().stream()
             .filter(wp -> wp.getDimension().equals(dimension))
-            .count() + 1;
+            .count();
+    }
+
+    private int nextSequenceForDimension(Identifier dimension) {
+        return (int) countInDimension(dimension) + 1;
     }
 
     private void renumberDimension(Identifier dimension) {

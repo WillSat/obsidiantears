@@ -19,6 +19,7 @@
   "screen.obsidiantears.teleport.refresh": "更新",
   "screen.obsidiantears.teleport.previous": "▲",
   "screen.obsidiantears.teleport.next": "▼",
+  "screen.obsidiantears.teleport.limit": "このディメンションは最大1024個の転送碑に達しています。",
   "screen.obsidiantears.teleport.copied": "座標をクリップボードにコピーしました",
 
   "screen.obsidiantears.naming.title": "転送碑に名前を付ける",

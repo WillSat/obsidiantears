@@ -19,6 +19,7 @@
   "screen.obsidiantears.teleport.refresh": "Refresh",
   "screen.obsidiantears.teleport.previous": "▲",
   "screen.obsidiantears.teleport.next": "▼",
+  "screen.obsidiantears.teleport.limit": "This dimension has reached the maximum of 1024 waypoints.",
   "screen.obsidiantears.teleport.copied": "Coordinates copied to clipboard",
 
   "screen.obsidiantears.naming.title": "Name Teleport Monument",

@@ -1,11 +1,13 @@
 package com.obsidiantears.neoforge.event;
 
 import com.obsidiantears.neoforge.ObsidianTears;
+import com.obsidiantears.neoforge.network.BiomeEntryPacket;
 import com.obsidiantears.neoforge.network.NamingPacket;
 import com.obsidiantears.neoforge.waypoint.WaypointData;
 import com.obsidiantears.neoforge.waypoint.WaypointManager;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -21,19 +23,90 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 public class BlockEventHandler {
     private static final String LABEL_TAG = ObsidianTears.MODID + "_waypoint_label";
+    private static final Map<UUID, ResourceKey<Biome>> LAST_BIOME = new HashMap<>();
+
+    public static void updateLastBiome(ServerPlayer player, Holder<Biome> biome) {
+        biome.unwrapKey().ifPresent(key -> LAST_BIOME.put(player.getUUID(), key));
+    }
+
+    @SubscribeEvent
+    public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        ServerLevel level = (ServerLevel) player.level();
+        Holder<Biome> biome = level.getBiome(player.blockPosition());
+        biome.unwrapKey().ifPresent(key -> LAST_BIOME.put(player.getUUID(), key));
+    }
+
+    @SubscribeEvent
+    public static void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
+        LAST_BIOME.remove(event.getEntity().getUUID());
+    }
+
+    @SubscribeEvent
+    public static void onPlayerTick(PlayerTickEvent.Post event) {
+        if (event.getEntity().level().isClientSide()) return;
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        if (player.tickCount % 40 != 0) return;
+
+        ServerLevel level = (ServerLevel) player.level();
+        Holder<Biome> biome = level.getBiome(player.blockPosition());
+        ResourceKey<Biome> currentKey = biome.unwrapKey().orElse(null);
+        if (currentKey == null) return;
+
+        ResourceKey<Biome> lastKey = LAST_BIOME.get(player.getUUID());
+        if (currentKey.equals(lastKey)) return;
+
+        LAST_BIOME.put(player.getUUID(), currentKey);
+
+        String rawBiome = biome.getRegisteredName();
+        int colon = rawBiome.indexOf(':');
+        String biomeKey = colon >= 0 ? rawBiome.substring(colon + 1) : rawBiome;
+
+        boolean isOverworld = level.dimension().equals(Level.OVERWORLD);
+        String timeText = "";
+        String weatherText = "";
+        if (isOverworld) {
+            long dayTime = level.getGameTime() % 24000;
+            int totalMinutes = (int) ((dayTime + 6000) % 24000 * 60 / 1000);
+            int hours = (totalMinutes / 60) % 24;
+            int minutes = totalMinutes % 60;
+            String ampm = hours >= 12 ? "PM" : "AM";
+            int displayHour = hours % 12;
+            if (displayHour == 0) displayHour = 12;
+            timeText = String.format("%02d:%02d %s", displayHour, minutes, ampm);
+            if (level.isThundering()) {
+                weatherText = "thunder";
+            } else if (level.isRaining()) {
+                weatherText = "rain";
+            } else {
+                weatherText = "clear";
+            }
+        }
+
+        int color = WaypointData.sequenceColor(level.dimension().identifier(), 0);
+
+        PacketDistributor.sendToPlayer(player, new BiomeEntryPacket(
+            biomeKey, timeText, weatherText, isOverworld, color));
+    }
 
     @SubscribeEvent
     public static void onBlockPlace(BlockEvent.EntityPlaceEvent event) {
@@ -50,6 +123,10 @@ public class BlockEventHandler {
         }
 
         WaypointData waypoint = WaypointManager.get(level).createWaypoint(player.getName().getString(), level, redstonePos);
+        if (waypoint == null) {
+            player.sendSystemMessage(Component.translatable("screen.obsidiantears.teleport.limit").withStyle(ChatFormatting.RED));
+            return;
+        }
         createWaypointLabel(level, redstonePos, waypoint);
 
         if (player instanceof ServerPlayer serverPlayer) {

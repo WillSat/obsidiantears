@@ -55,6 +55,24 @@ public final class TeleportFeedbackOverlay {
         potionFadeInTicks = 0;
     }
 
+    public static void showBiomeEntry(String biomeKey, String timeText, String weatherText, boolean showInfoLine, int color) {
+        if (displayTicks > 0) return;
+        targetBiomeName = biomeKey.toUpperCase();
+        biomeLine = Component.literal(targetBiomeName);
+        biomeColor = color;
+        labelLine = null;
+        if (showInfoLine) {
+            infoLine = Component.literal(timeText + "  " + weatherText);
+            infoColor = color;
+        } else {
+            infoLine = null;
+        }
+        showInfo = showInfoLine;
+        displayTicks = TOTAL_TICKS;
+        decodeTick = 0;
+        potionFadeInTicks = 0;
+    }
+
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Post event) {
         if (displayTicks > 0) {
@@ -119,12 +137,15 @@ public final class TeleportFeedbackOverlay {
             }
             graphics.pose().popMatrix();
         }
-        y += 22;
-
-        // Line 2: label, normal font
-        int labelWidth = mc.font.width(labelLine);
-        graphics.centeredText(mc.font, labelLine, right - labelWidth / 2, y, white);
-        y += 14;
+        // Line 2: label, normal font — only after mod teleport
+        if (labelLine != null) {
+            y += 22;
+            int labelWidth = mc.font.width(labelLine);
+            graphics.centeredText(mc.font, labelLine, right - labelWidth / 2, y, white);
+            y += 14;
+        } else {
+            y += 22;
+        }
 
         // Line 3: time & weather, small font, only in overworld
         if (showInfo && infoLine != null) {
